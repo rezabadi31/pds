@@ -1,0 +1,5 @@
+Method,Total Records,benign,brute_force,command_injection,path_traversal,sqli,xss
+Original Training Data,1193745,1190258,1074,644,878,128,763
+Random Undersampling,768,128,128,128,128,128,128
+Random Oversampling,60000,10000,10000,10000,10000,10000,10000
+SMOTE (Synthetic Over-sampling),60000,10000,10000,10000,10000,10000,10000

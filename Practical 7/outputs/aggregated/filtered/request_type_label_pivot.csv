@@ -1,0 +1,2 @@
+request_type,benign,brute_force,command_injection,path_traversal,sqli,xss
+unknown,9906,10000,9934,10000,9716,9941

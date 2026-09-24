@@ -1,0 +1,48 @@
+============================================================
+PRACTICAL 2 - DATA QUALITY ANALYSIS REPORT
+============================================================
+
+1. RECORD INTEGRITY AUDIT
+------------------------------------------------------------
+Total Extracted Records:     2,062,361
+Valid / Successfully Parsed: 2,062,361
+Malformed Records:           0
+Parsing Success Percentage:  100.0000%
+Invalid Timestamp Count:     0
+
+2. MISSING VALUES PER COLUMN
+------------------------------------------------------------
+category_type       :  2,035,084 missing ( 98.68%)
+payload             :  2,046,233 missing ( 99.22%)
+timestamp           :          0 missing (  0.00%)
+client_ip           :          0 missing (  0.00%)
+client_port         :          0 missing (  0.00%)
+user_agent          :     26,153 missing (  1.27%)
+accept_language     :  2,000,685 missing ( 97.01%)
+proxy_ip            :  2,014,477 missing ( 97.68%)
+request_type        :  2,062,361 missing (100.00%)
+status_code         :  2,062,361 missing (100.00%)
+resource_requested  :  2,062,361 missing (100.00%)
+bytes_sent          :  2,062,361 missing (100.00%)
+referrer            :  2,062,361 missing (100.00%)
+
+3. CARDINALITY & UNIQUE VALUES (HIGH-VOLUME FIELDS)
+------------------------------------------------------------
+Unique Client IP Addresses:  16,680
+Unique User-Agents:          5,953
+Unique Attack Categories:    1,227
+
+4. TEMPORAL COVERAGE
+------------------------------------------------------------
+Earliest Timestamp:          2023-01-08 08:07:15
+Latest Timestamp:            2024-02-19 21:44:01
+Total Duration:              407 days, 13 hours
+
+5. QUALITY FINDINGS INTERPRETATION
+------------------------------------------------------------
+- 100% of parsed records possess a valid timestamp, client IP, and source port.
+- Natural missing values in category_type (98.68%) and payload (99.22%) reflect
+  general web reconnaissance connections rather than specialized exploit payloads.
+- Automated directory fuzzers ('gobuster/3.6' and 'OWASP DirBuster') dominate
+  traffic, accounting for over 87% of all parsed events.
+============================================================

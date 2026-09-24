@@ -1,0 +1,36 @@
+============================================================
+PRACTICAL 2 - STRUCTURED DATAFRAME SAMPLE (FIRST 10 ROWS)
+============================================================
+
+DataFrame Total Shape: 2,062,361 rows x 13 columns
+
+DATA TYPES:
+  category_type         : object (string/float)
+  payload               : object (string/float)
+  timestamp             : datetime64[ns]
+  client_ip             : object (string/float)
+  client_port           : int64
+  user_agent            : object (string/float)
+  accept_language       : object (string/float)
+  proxy_ip              : object (string/float)
+  request_type          : object (string/float)
+  status_code           : object (string/float)
+  resource_requested    : object (string/float)
+  bytes_sent            : object (string/float)
+  referrer              : object (string/float)
+
+==============================================================================================================
+FIRST 10 STRUCTURED RECORDS (SELECTED COLUMNS):
+==============================================================================================================
+            timestamp       client_ip  client_port category_type                                                            user_agent  request_type  status_code
+0 2023-01-08 08:07:15  104.28.209.153        61901           NaN  Mozilla/5.0 (Windows NT 10.0; rv:108.0) Gecko/20100101 Firefox/108.0           NaN          NaN
+1 2023-01-08 08:07:16  104.28.209.153        22667           NaN  Mozilla/5.0 (Windows NT 10.0; rv:108.0) Gecko/20100101 Firefox/108.0           NaN          NaN
+2 2023-01-08 08:07:25  104.28.209.153        62901           NaN  Mozilla/5.0 (Windows NT 10.0; rv:108.0) Gecko/20100101 Firefox/108.0           NaN          NaN
+3 2023-01-08 08:07:26  104.28.209.153        61879           NaN  Mozilla/5.0 (Windows NT 10.0; rv:108.0) Gecko/20100101 Firefox/108.0           NaN          NaN
+4 2023-01-08 08:07:34  104.28.209.153        46994           NaN  Mozilla/5.0 (Windows NT 10.0; rv:108.0) Gecko/20100101 Firefox/108.0           NaN          NaN
+5 2023-01-08 08:07:35  104.28.209.153        61441           NaN  Mozilla/5.0 (Windows NT 10.0; rv:108.0) Gecko/20100101 Firefox/108.0           NaN          NaN
+6 2023-01-08 08:07:43  104.28.209.153        12783           NaN  Mozilla/5.0 (Windows NT 10.0; rv:108.0) Gecko/20100101 Firefox/108.0           NaN          NaN
+7 2023-01-08 08:07:44  104.28.209.153        60908           NaN  Mozilla/5.0 (Windows NT 10.0; rv:108.0) Gecko/20100101 Firefox/108.0           NaN          NaN
+8 2023-01-08 08:07:52  104.28.209.153         9561           NaN  Mozilla/5.0 (Windows NT 10.0; rv:108.0) Gecko/20100101 Firefox/108.0           NaN          NaN
+9 2023-01-08 08:07:53  104.28.209.153        61682           NaN  Mozilla/5.0 (Windows NT 10.0; rv:108.0) Gecko/20100101 Firefox/108.0           NaN          NaN
+==============================================================================================================

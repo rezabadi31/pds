@@ -1,0 +1,3 @@
+ip_classification,record_count,percentage
+Internal / Private / Loopback,71,0.12
+External / Public,59929,99.88

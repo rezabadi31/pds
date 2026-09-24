@@ -1,0 +1,23 @@
+======================================================================
+PRACTICAL 8: EXPLORATORY DATA ANALYSIS (EDA) SUMMARY
+Generated: 2026-09-23 21:42:59
+======================================================================
+
+FACTUAL OBSERVATIONS CALCULATED FROM DATASET:
+----------------------------------------------------------------------
+1. Highest-Volume Hour:           2023-03-10 09:00:00 (8,984 requests)
+2. Highest Attack-Volume Period:   2023-03-10 (10,079 attacks)
+3. Most Frequent Attack Category:  path_traversal (10,000 records)
+4. IP with Highest Attack Count:   14.139.122.76 (20,901 attack requests)
+5. Most Common Request Type:       unknown (59,497 requests)
+6. Most Common Status Code:        0 (59,497 requests)
+7. Likely Bot Traffic Share:       15,911 records (Attack Rate: 45.57%)
+8. Internal / Private IP Share:    0 records (0.00% of telemetry)
+
+DATASET CHARACTERISTICS:
+----------------------------------------------------------------------
+Total Telemetry Records:           59,497
+Total Feature Attributes:          80
+Unique Client IPs:                 966
+Distinct Classification Labels:    6
+Valid Datetime Timestamps:         59,497

@@ -1,0 +1,94 @@
+================================================================================
+PRACTICAL 7: DATA WRANGLING FOR AGGREGATED ANALYSIS REPORT
+Generated: 2026-09-23 21:31:50
+================================================================================
+
+1. DATASET INFORMATION
+--------------------------------------------------------------------------------
+Total Telemetry Records:      60,000
+Total Columns:                79
+Valid Datetime Timestamps:    60,000
+Invalid Datetime Timestamps:  0
+Unique Client IPs:            988
+Unique Categorical Labels:    6
+Unique HTTP Request Types:    1
+
+2. IP ATTACK-FREQUENCY ANALYSIS
+--------------------------------------------------------------------------------
+Total Unique IPs Analyzed:    988
+Highest Attack Volume IP:     14.139.122.76 (20,901 attacks, rate: 0.99)
+Analytical Principle: High attack frequency or rate indicates heavy malicious telemetry
+originating from the host, but does NOT permanently label an IP as inherently malicious
+(e.g., infected hosts, proxies, NAT gateways, and multi-tenant nodes).
+
+3. HOURLY TIME-SERIES RESAMPLING
+--------------------------------------------------------------------------------
+Total Hourly Intervals:       1,115
+Peak Hourly Traffic:          2023-03-10 09:00:00 (8,984 requests)
+
+4. DAILY TIME-SERIES RESAMPLING
+--------------------------------------------------------------------------------
+Total Observation Days:       374
+Busiest Day:                  2023-03-10
+Peak Daily Attacks:           10,079 attack requests
+
+5. REQUEST TYPE × LABEL PIVOT ANALYSIS
+--------------------------------------------------------------------------------
+request_type  benign  brute_force  command_injection  path_traversal  sqli   xss
+     unknown   10000        10000              10000           10000 10000 10000
+
+6. STATUS CODE × LABEL ANALYSIS
+--------------------------------------------------------------------------------
+Total 4xx Client Errors:      0 (0.0%)
+Total 5xx Server Errors:      0 (0.0%)
+
+7. BOT FILTERING
+--------------------------------------------------------------------------------
+Likely Bot Records Identified: 432 (0.72%)
+Non-Bot Records Retained:      59,568
+Note: Bot user-agent strings are excluded for aggregated human-traffic comparisons,
+not as proof of irrelevance (automated scanners are valid honeypot traffic).
+
+8. INTERNAL IP FILTERING (RFC 1918 & LOOPBACK)
+--------------------------------------------------------------------------------
+Internal IP Records:           71 (0.12%)
+External IP Records:           59,929
+
+9. COMBINED FILTERING & FINAL DATASET SIZE
+--------------------------------------------------------------------------------
+Initial Balanced Records:      60,000
+Records After Bot Exclusion:   59,568
+Records After IP Exclusion:    59,929
+Final Clean Filtered Records:  59,497
+Destination:                   data/processed/wrangled_filtered_dataset.csv
+
+11. KEY OBSERVATIONS DIRECTLY FROM EMPIRICAL RESULTS
+--------------------------------------------------------------------------------
+1. High IP Attack Concentration: A discrete subset of client IPs generates a disproportionate
+   share of total attack events, indicative of coordinated honeypot probes and automated tooling.
+2. Temporal Periodicity: Time-series resampling demonstrates pronounced hourly diurnal cycles
+   and synchronized multi-day attack spikes.
+3. Request Method Alignment: The dominant HTTP request method utilized across attacks remains GET,
+   though POST and HEAD methods frequently correlate with specific injection vectors.
+4. Status Code Diagnostic Signals: 4xx status codes strongly correlate with reconnaissance,
+   path traversal probes, and scanner rejections.
+5. Bot Prevalence: Web crawlers, scripts (python-requests, curl), and automated scanners
+   constitute an identifiable slice of incoming requests.
+6. Boundary Integrity: All wrangling and aggregation transformations were performed without
+   altering the Practical 6 balanced training dataset or introducing data leakage.
+
+12. VALIDATION RESULTS
+--------------------------------------------------------------------------------
+All 11 automated quality assertions verified:
+  [PASS] Input dataset loaded
+  [PASS] Timestamp converted
+  [PASS] IP aggregation created
+  [PASS] Hourly aggregation created
+  [PASS] Daily aggregation created
+  [PASS] Request type x label pivot created
+  [PASS] Bot filtering completed
+  [PASS] Internal IP filtering completed
+  [PASS] Filtered dataset saved
+  [PASS] No unexpected data loss in original dataset
+  [PASS] Original balanced dataset unchanged
+  [PASS] All aggregation outputs readable

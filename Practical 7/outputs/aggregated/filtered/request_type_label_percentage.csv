@@ -1,0 +1,2 @@
+request_type,benign,brute_force,command_injection,path_traversal,sqli,xss
+unknown,16.65,16.81,16.7,16.81,16.33,16.71

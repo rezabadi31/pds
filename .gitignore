@@ -1,0 +1,40 @@
+# Byte-compiled / optimized / Python caches
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Virtual Environments
+.venv/
+venv/
+ENV/
+env/
+
+# IDE and Editor settings
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# Large raw & intermediate datasets exceeding GitHub's 100MB limit
+# Note: Sample datasets, Parquet files, ML models, and audit reports are preserved
+*.log
+Practical 1/data/raw/
+Practical 1/outputs/parsed_logs.csv
+Practical 2/data/processed/structured_access_logs.csv
+Practical 3/data/input/structured_access_logs.csv
+Practical 3/data/processed/preprocessed_access_logs.csv
+Practical 4/data/processed/labeled_access_logs.csv
+Practical 5/data/processed/feature_engineered_access_logs.csv
+Practical 5/data/processed/ml_ready_features.csv
+Practical 6/data/processed/test_dataset.csv
+Practical 10/data/processed/structured_logs.csv
+Practical 10/data/processed/labeled_logs.csv
+Practical 10/data/processed/feature_engineered_logs.csv
+
+# Temporary files
+*.tmp
+.ipynb_checkpoints/
+.pytest_cache/

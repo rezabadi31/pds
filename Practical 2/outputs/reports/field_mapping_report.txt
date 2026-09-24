@@ -1,0 +1,26 @@
+============================================================
+PRACTICAL 2 - FIELD MAPPING REPORT
+============================================================
+
+TRANSFORMATION: RAW JSON POSITION -> STRUCTURED COLUMN
+------------------------------------------------------------
+Index 0  -> category_type    | Type: String     | Attack classification or command identifier
+Index 1  -> payload          | Type: String     | Command argument or parameter payload value
+Index 2  -> timestamp        | Type: Datetime   | Request arrival timestamp (ISO format)
+Index 3  -> client_ip        | Type: String     | Source IPv4/IPv6 client address
+Index 4  -> client_port      | Type: Numeric    | Source TCP ephemeral port (converted to int)
+Index 5  -> user_agent       | Type: String     | HTTP User-Agent request header
+Index 6  -> accept_language  | Type: String     | HTTP Accept-Language request header
+Index 7  -> proxy_ip         | Type: String     | Secondary forwarded IP from proxy/CDN
+
+UNAVAILABLE STANDARD HTTP FIELDS (PRESERVED AS NaN)
+------------------------------------------------------------
+request_type         -> NaN | Reason: HTTP request method (GET, POST, HEAD) unavailable as standalone field
+status_code          -> NaN | Reason: HTTP status code (200, 404, 500) not logged in this honeypot sensor
+resource_requested   -> NaN | Reason: URL request path not logged separately from category/payload
+bytes_sent           -> NaN | Reason: HTTP response body bytes transferred unavailable
+referrer             -> NaN | Reason: HTTP Referer header unavailable in raw records
+
+Note: These 5 columns are maintained with NaN missing values to provide schema
+compatibility for downstream web analytics without manufacturing false values.
+============================================================

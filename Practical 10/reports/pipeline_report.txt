@@ -1,0 +1,65 @@
+======================================================================
+PRACTICAL 10: REUSABLE DATA PIPELINE COMPREHENSIVE REPORT
+======================================================================
+
+1. PIPELINE OVERVIEW & TIMING
+----------------------------------------------------------------------
+Input file:               D:\Pds Practicals\Practical 1\data\raw\cj.log
+Total Execution Time:     108.67 seconds
+Raw record count:         2,061,431
+Structured record count:  2,062,226
+Preprocessed record count:1,492,047
+Final record count:       1,492,047
+Number of columns:        42
+Number of engineered features: 26
+
+Stage Execution Times:
+  - load                     : 20.57s
+  - structure                : 23.21s
+  - preprocess               : 9.48s
+  - label                    : 20.48s
+  - feature_engineering      : 4.96s
+  - save                     : 29.98s
+
+2. DATA QUALITY & CLEANING METRICS
+----------------------------------------------------------------------
+Missing values before:    18,433,649
+Missing values after:     0
+Duplicates removed:       570,179
+Invalid timestamps:       0
+
+3. CLASS DISTRIBUTION
+----------------------------------------------------------------------
+  - benign                :  1,487,682 ( 99.71%)
+  - brute_force           :      1,342 (  0.09%)
+  - path_traversal        :      1,098 (  0.07%)
+  - xss                   :        960 (  0.06%)
+  - command_injection     :        805 (  0.05%)
+  - sqli                  :        160 (  0.01%)
+
+4. OUTPUT FILES GENERATED
+----------------------------------------------------------------------
+  - structured_logs.csv             :   170.99 MB (D:\Pds Practicals\Practical 10\data\processed\structured_logs.csv)
+  - labeled_logs.csv                :   279.92 MB (D:\Pds Practicals\Practical 10\data\processed\labeled_logs.csv)
+  - feature_engineered_logs.csv     :   429.80 MB (D:\Pds Practicals\Practical 10\data\processed\feature_engineered_logs.csv)
+  - feature_engineered_logs.parquet :     9.46 MB (D:\Pds Practicals\Practical 10\data\processed\feature_engineered_logs.parquet)
+
+5. VALIDATION STATUS
+----------------------------------------------------------------------
+  [PASS] Input file exists
+  [PASS] Logs loaded
+  [PASS] Data structured
+  [PASS] Timestamp processed
+  [PASS] Missing values handled
+  [PASS] Exact duplicates handled
+  [PASS] Labels generated
+  [PASS] Expected label classes checked
+  [PASS] Features generated
+  [PASS] No label leakage into ML features
+  [PASS] Output CSV exists
+  [PASS] Output Parquet exists
+  [PASS] Output row count valid
+  [PASS] Pipeline completed
+
+OVERALL STATUS: SUCCESS
+======================================================================

@@ -1,0 +1,15 @@
+attribute,original_dtype,cleaned_dtype,missing_before,missing_after
+category_type,str,string,2035084,0
+payload,str,string,2046233,0
+timestamp,str,datetime64[us],0,0
+client_ip,str,string,0,0
+client_port,int64,int64,0,0
+user_agent,str,string,26153,0
+accept_language,str,string,2000685,0
+proxy_ip,str,string,2014477,0
+request_type,float64,string,2062361,0
+status_code,float64,int64,2062361,0
+resource_requested,float64,string,2062361,0
+bytes_sent,float64,int64,2062361,0
+referrer,float64,string,2062361,0
+normalized_resource,N/A (new),string,2062361,0

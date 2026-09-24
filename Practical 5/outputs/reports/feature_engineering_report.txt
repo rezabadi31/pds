@@ -1,0 +1,53 @@
+================================================================================
+PRACTICAL 5: FEATURE ENGINEERING FOR ANOMALY DETECTION REPORT
+Generated: 2026-09-23 20:23:02
+Execution Duration: 179.74 seconds
+Source Input:       Practical 4 labeled dataset: D:\Pds Practicals\Practical 4\data\processed\labeled_access_logs.csv
+================================================================================
+
+1. DATASET CHARACTERISTICS & RECORD INTEGRITY
+--------------------------------------------------------------------------------
+Total Input Records  : 1,492,182
+Unique Client IPs    : 16,680
+Unique User Agents   : 5,954
+Time Range           : 2023-01-08 08:07:15 to 2024-02-19 21:44:01
+Target Leakage Policy: Strictly enforced. Columns 'label' and 'label_reason'
+                       were excluded from all feature generation steps.
+
+2. FEATURE GENERATION SUMMARY
+--------------------------------------------------------------------------------
+Domain-Specific Features : 46
+Featuretools Features    : 8
+tsfresh Features         : 8
+Total Final Features     : 66
+
+3. UNSUPERVISED ISOLATION FOREST RESULTS
+--------------------------------------------------------------------------------
+Normal Records:     1,307,927 (87.65%)
+Anomalous Records:  184,255 (12.35%)
+Validation Detail:  Attacks flagged anomalous: 4,327/4,359 (99.27%)
+
+4. TOP 20 VALIDATION FEATURE IMPORTANCES
+--------------------------------------------------------------------------------
+                   feature  importance  rank
+           payload_entropy    0.196935     1
+            payload_length    0.172729     2
+      requests_per_ip_1min    0.069810     3
+      requests_per_ip_5min    0.058315     4
+      failed_pattern_count    0.055966     5
+           requests_per_ip    0.052832     6
+         ft_COUNT_requests    0.044855     7
+         request_rate_1min    0.044182     8
+     requests_per_ip_10min    0.041320     9
+         user_agent_length    0.027456    10
+           ip_request_rank    0.024495    11
+ ft_NUM_UNIQUE_client_port    0.017439    12
+         request_rate_5min    0.016620    13
+                ua_browser    0.014391    14
+ unique_user_agents_per_ip    0.014026    15
+ max_inter_request_time_ip    0.011181    16
+                ua_unknown    0.010974    17
+    ft_NUM_UNIQUE_resource    0.010191    18
+mean_inter_request_time_ip    0.010113    19
+        ft_STD_client_port    0.009508    20
+================================================================================

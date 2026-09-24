@@ -1,0 +1,170 @@
+==============================================================================
+PRACTICAL 9: CYBERSECURITY ATTACK DETECTION CLASSIFICATION REPORT
+==============================================================================
+
+1. AIM & OBJECTIVE
+------------------------------------------------------------------------------
+The objective of this practical is to build, evaluate, and compare simple and
+ensemble machine learning classifiers (Logistic Regression and Random Forest)
+to detect and accurately classify multi-class cybersecurity attacks based on
+features engineered from web access-log telemetry in Practical 5.
+
+2. DATASET SUMMARY
+------------------------------------------------------------------------------
+Source:                D:\Pds Practicals\Practical 5\data\processed\feature_engineered_access_logs.csv
+Total Records:         1,492,182
+Total Raw Columns:     80
+Target Column:         label
+Target Leakage Check:  PASSED (Strict isolation of metadata and labels)
+
+3. FEATURES USED
+------------------------------------------------------------------------------
+Candidate Numeric Features: 66
+Final ML Feature Count:     66
+Feature Categories:
+  - Behavioral & Rate Features: requests_per_ip, request_rate_1min, request_rate_5min
+  - Structural & Lexical Features: url_entropy, url_length, path_depth, payload_length
+  - Attack Signature Flags: contains_sql_keyword, contains_path_traversal, is_scanner
+  - Status Code Ratios: status_404_ratio_ip, error_status_ratio_ip
+  - Deep Signal Features: Featuretools aggregations and tsfresh temporal metrics
+Missing Values Imputed:     16,680 -> 0
+Infinite Values Cleaned:    0 -> 0
+
+4. NUMBER OF CLASSES & NATURAL DISTRIBUTION
+------------------------------------------------------------------------------
+Total Unique Classes: 6
+  - benign              :  1,487,823 ( 99.71%)
+  - brute_force         :      1,342 (  0.09%)
+  - path_traversal      :      1,098 (  0.07%)
+  - xss                 :        954 (  0.06%)
+  - command_injection   :        805 (  0.05%)
+  - sqli                :        160 (  0.01%)
+Class Imbalance Note: Over 99.7% of the dataset comprises benign traffic.
+
+5. TRAIN / TEST SPLIT (STRATIFIED)
+------------------------------------------------------------------------------
+Split Ratio:          80% Training / 20% Testing (Stratified)
+Random State:         42
+Training Records:     1,193,745
+Testing Records:      298,437
+Isolation Assurance:  The 20% test partition was isolated prior to scaling
+                      and evaluation. No synthetic balancing was applied to it.
+
+6. LOGISTIC REGRESSION CONFIGURATION
+------------------------------------------------------------------------------
+Algorithm:            Multinomial Logistic Regression (L2 Regularization)
+Feature Preprocessing:StandardScaler (fit strictly on X_train)
+Maximum Iterations:   300
+Class Weighting:      'balanced' (inversely proportional to class frequencies)
+Random State:         42
+
+7. LOGISTIC REGRESSION EVALUATION RESULTS
+------------------------------------------------------------------------------
+Overall Accuracy:     0.970744 (97.07%)
+Macro Precision:      0.386698
+Macro Recall:         0.984456
+Macro F1-Score:       0.451820
+Weighted Precision:   0.997508
+Weighted Recall:      0.970744
+Weighted F1-Score:    0.982936
+
+Per-Class Classification Report:
+                   precision    recall  f1-score   support
+
+           benign       1.00      0.97      0.99    297565
+      brute_force       0.08      1.00      0.15       268
+command_injection       0.07      0.98      0.13       161
+   path_traversal       0.27      0.96      0.42       220
+             sqli       0.84      1.00      0.91        32
+              xss       0.06      0.99      0.11       191
+
+         accuracy                           0.97    298437
+        macro avg       0.39      0.98      0.45    298437
+     weighted avg       1.00      0.97      0.98    298437
+
+
+8. RANDOM FOREST CONFIGURATION
+------------------------------------------------------------------------------
+Algorithm:            Random Forest Classifier (Ensemble of Decision Trees)
+Feature Preprocessing:Cleaned numeric features (no scaling required)
+Number of Trees:      100 estimators
+Class Weighting:      'balanced'
+Random State:         42
+Parallel Jobs:        -1 (Utilizing all available CPU cores)
+
+9. RANDOM FOREST EVALUATION RESULTS
+------------------------------------------------------------------------------
+Overall Accuracy:     0.999705 (99.97%)
+Macro Precision:      0.930799
+Macro Recall:         0.976255
+Macro F1-Score:       0.952579
+Weighted Precision:   0.999720
+Weighted Recall:      0.999705
+Weighted F1-Score:    0.999710
+
+Per-Class Classification Report:
+                   precision    recall  f1-score   support
+
+           benign       1.00      1.00      1.00    297565
+      brute_force       0.97      0.99      0.98       268
+command_injection       0.88      0.96      0.92       161
+   path_traversal       0.95      0.96      0.96       220
+             sqli       0.89      0.97      0.93        32
+              xss       0.89      0.97      0.93       191
+
+         accuracy                           1.00    298437
+        macro avg       0.93      0.98      0.95    298437
+     weighted avg       1.00      1.00      1.00    298437
+
+
+10. CONFUSION MATRIX INTERPRETATION
+------------------------------------------------------------------------------
+Logistic Regression Confusion Matrix Analysis:
+  - The linear decision boundary with balanced weighting prioritizes recall,
+    correctly flagging over 96-100% of attack instances across all classes.
+  - However, linear boundaries overlap significantly in high-dimensional feature
+    space, misclassifying several thousand benign logs as attack types (lower precision).
+
+Random Forest Confusion Matrix Analysis:
+  - Non-linear orthogonal decision trees successfully partition complex behavioral
+    clusters without sacrificing precision on the benign majority class.
+  - Minimal false positives and near-zero cross-attack confusions.
+
+11. RANDOM FOREST FEATURE IMPORTANCE ANALYSIS
+------------------------------------------------------------------------------
+Top 10 Most Discriminative Security Telemetry Features:
+  43. contains_sql_keyword                : Gini Importance = 0.091288
+  45. contains_script_tag                 : Gini Importance = 0.090688
+  44. contains_path_traversal             : Gini Importance = 0.080273
+  41. payload_length                      : Gini Importance = 0.064807
+  50. ft_COUNT_requests                   : Gini Importance = 0.064649
+  10. ip_request_rank                     : Gini Importance = 0.064433
+   9. requests_per_ip                     : Gini Importance = 0.051351
+  42. payload_entropy                     : Gini Importance = 0.039466
+  32. user_agent_length                   : Gini Importance = 0.037949
+  49. failed_pattern_count                : Gini Importance = 0.034360
+
+12. COMPARATIVE SYNTHESIS
+------------------------------------------------------------------------------
+              Model  Accuracy  Macro Precision  Macro Recall  Macro F1  Weighted Precision  Weighted Recall  Weighted F1
+Logistic Regression  0.970744         0.386698      0.984456  0.451820            0.997508         0.970744     0.982936
+      Random Forest  0.999705         0.930799      0.976255  0.952579            0.999720         0.999705     0.999710
+
+Part 13 — Balanced-Data Experiment Comparison:
+                                                Experiment               Model  Accuracy  Macro Precision  Macro Recall  Macro F1  Weighted F1
+                  Experiment A (Practical 5 Natural Split) Logistic Regression  0.970744         0.386698      0.984456  0.451820     0.982936
+                  Experiment A (Practical 5 Natural Split)       Random Forest  0.999705         0.930799      0.976255  0.952579     0.999710
+Experiment B (Practical 6 Balanced Train + Untouched Test) Logistic Regression  0.967249         0.369619      0.988192  0.428060     0.981022
+Experiment B (Practical 6 Balanced Train + Untouched Test)       Random Forest  0.995433         0.577206      0.992350  0.691784     0.996529
+
+13. PRACTICAL LIMITATIONS & CYBERSECURITY IMPLICATIONS
+------------------------------------------------------------------------------
+1. Accuracy Paradox: High accuracy (96-99%) is naturally inflated by the massive
+   benign majority (99.7%). Macro F1 and class-specific recall are the true metrics.
+2. Evasion & Adversarial Perturbations: Attackers intentionally fragment payloads,
+   rotate user agents, or slow down request rates to evade entropy & rate features.
+3. Concept Drift: Web application updates and novel zero-day attack signatures require
+   continuous telemetry retraining.
+4. Deployment Latency: Random Forest tree ensemble inference introduces higher memory
+   and compute overhead compared to lightweight linear models in inline firewalls.
+==============================================================================

@@ -1,0 +1,36 @@
+================================================================================
+PRACTICAL 5: FEATURE SELECTION & RANKING REPORT
+================================================================================
+
+Candidate Features Evaluated:  66
+Passed VarianceThreshold:     50
+Top Features Selected (K):     20
+Validation Objective:          Practical 4 Attack vs Benign (Supervised Validation Only)
+Execution Duration:            4.66 seconds
+Integrity Note:                Feature selection was performed strictly for
+                               ranking and post-hoc validation; labels were NEVER
+                               used during feature creation.
+
+Rank  | Feature Name                        | F-Score        | p-value     
+---------------------------------------------------------------------------
+1     | failed_pattern_count                | 50535.0825     | 0.00e+00    
+2     | payload_entropy                     | 17468.0313     | 0.00e+00    
+3     | payload_length                      | 11362.5025     | 0.00e+00    
+4     | path_depth                          | 9561.5012      | 0.00e+00    
+5     | special_character_count             | 9388.2901      | 0.00e+00    
+6     | url_length                          | 6861.8687      | 0.00e+00    
+7     | unique_urls_per_ip                  | 1479.3368      | 0.00e+00    
+8     | ft_NUM_UNIQUE_resource              | 1479.3368      | 0.00e+00    
+9     | ft_NUM_UNIQUE_user_agent            | 668.3021       | 2.15e-146   
+10    | unique_user_agents_per_ip           | 668.3021       | 2.15e-146   
+11    | ip_request_rank                     | 627.7439       | 1.10e-137   
+12    | is_bot                              | 625.3505       | 3.59e-137   
+13    | is_scanner                          | 608.5191       | 1.48e-133   
+14    | ua_scanner                          | 608.5191       | 1.48e-133   
+15    | ft_MAX_client_port                  | 571.6038       | 1.28e-125   
+16    | ua_browser                          | 520.9945       | 9.95e-115   
+17    | ft_COUNT_requests                   | 258.6289       | 4.78e-58    
+18    | requests_per_ip                     | 258.6289       | 4.78e-58    
+19    | requests_per_ip_5min                | 219.5035       | 1.48e-49    
+20    | request_rate_5min                   | 219.5034       | 1.48e-49    
+================================================================================

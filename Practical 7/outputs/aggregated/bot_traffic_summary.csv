@@ -1,0 +1,5 @@
+label,request_count,percentage
+sqli,284,65.74
+command_injection,66,15.28
+xss,59,13.66
+benign,23,5.32

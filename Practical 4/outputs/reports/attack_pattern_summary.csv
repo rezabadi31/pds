@@ -1,0 +1,7 @@
+attack_type,priority,detected_records,detection_method,example_target
+SQL Injection (sqli),1,160,"Regex matching (UNION SELECT, boolean tautologies, SQL comments, SLEEP)",payload / resource_requested
+Path Traversal (path_traversal),2,1098,"Regex matching (../, ..\, %2e%2e%2f, /etc/passwd, win.ini, boot.ini)",resource_requested / payload
+Command Injection (command_injection),3,805,"Regex matching (;ls, ;cat, |id|, sh /tmp/, wget droppers)",payload / category_type
+Cross-Site Scripting (xss),4,954,"Regex matching (<script>, alert, document.cookie, onerror=)",payload
+Brute Force (brute_force),5,1342,Temporal aggregation (>=10 login attempts within 10-minute rolling window per IP),client_ip + timestamp + login endpoints
+Benign (benign),6,1487823,Default fallback (No attack pattern detected),All attributes

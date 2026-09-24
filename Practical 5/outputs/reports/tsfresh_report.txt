@@ -1,0 +1,39 @@
+================================================================================
+TSFRESH AUTOMATED TIME-SERIES FEATURE EXTRACTION REPORT
+================================================================================
+
+Tool:                       tsfresh (Open-Source)
+Time-Series Entity Key:     client_ip
+Time-Series Sort Column:    timestamp
+Input Signal:               Inverse Log-Pacing Dynamic Signal
+Feature Parameter Set:      EfficientFCParameters
+Original Records:           1,492,182
+Total Unique Client IPs:    16,680
+Number of IPs Sampled:      500
+Number of Records Sampled:  45,930
+Generated tsfresh Features: 8
+Execution Duration:         2.79 seconds
+Random State:               42
+
+Features Extracted:
+  - tsfresh_mean
+  - tsfresh_standard_deviation
+  - tsfresh_variance
+  - tsfresh_minimum
+  - tsfresh_maximum
+  - tsfresh_median
+  - tsfresh_abs_energy
+  - tsfresh_mean_abs_change
+
+Summary Statistics:
+--------------------------------------------------------------------------------
+                            count           mean           std       min       25%           50%           75%           max
+tsfresh_mean                500.0      20.805587  2.559356e+01  0.144800  0.144800      6.689127     34.028900  9.423721e+01
+tsfresh_standard_deviation  500.0      24.087671  2.415826e+01  0.000000  0.000000     24.012962     49.711107  5.793964e+01
+tsfresh_variance            500.0    1162.670361  1.276020e+03  0.000000  0.000000    576.631098   2471.194633  3.357002e+03
+tsfresh_minimum             500.0       0.144800  0.000000e+00  0.144800  0.144800      0.144800      0.144800  1.448000e-01
+tsfresh_maximum             500.0      52.834674  5.006105e+01  0.144800  0.144800    100.499200    100.499200  1.004992e+02
+tsfresh_median              500.0      15.524565  3.401740e+01  0.144800  0.144800      0.392200      1.442700  1.004992e+02
+tsfresh_abs_energy          500.0  485293.439308  7.622631e+06  0.062901  0.167736  10100.140082  30306.532719  1.679365e+08
+tsfresh_mean_abs_change     500.0      27.137160  3.228259e+01  0.000000  0.000000     12.160278     50.177200  1.003544e+02
+================================================================================

@@ -1,0 +1,26 @@
+================================================================================
+PRACTICAL 3: PREPROCESSING DATA QUALITY VERIFICATION REPORT
+================================================================================
+
+1. Timestamp Datatype:        PASS (datetime64)
+2. Missing-Value Handling:    PASS (0 nulls remaining)
+3. String Normalization:      PASS (lowercased text fields)
+4. URL/Path Normalization:    PASS (normalized_resource present)
+5. Duplicate Handling:        PASS (0 exact duplicates)
+6. Output Dataset Readable:   PASS (14 columns present)
+
+10 REAL EXAMPLES: ORIGINAL URL/PATH -> NORMALIZED URL/PATH
+--------------------------------------------------------------------------------
+/index.html                                   -> /index                                       
+/INDEX.HTML                                   -> /index                                       
+/login.html                                   -> /login                                       
+/login.htm                                    -> /login                                       
+/products/                                    -> /products                                    
+/index                                        -> /index                                       
+/about.html?user=alice&lang=en                -> /about?user=alice&lang=en                    
+logout.htm                                    -> /logout                                      
+main.htm                                      -> /main                                        
+http://example.com/index.html?search=test     -> http://example.com/index?search=test         
+
+Preserved RFC-reserved characters: / ? = & : . - _ %
+================================================================================

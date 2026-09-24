@@ -1,0 +1,92 @@
+================================================================================
+PRACTICAL 3: DATA CLEANING AND PREPROCESSING COMPREHENSIVE REPORT
+Title: To clean the data and Preprocessing for further process of dataset
+Course: Predictive Data Science (PDS)
+Generated at: 2026-09-13 09:21:42
+Total Pipeline Runtime: 28.23 seconds
+================================================================================
+
+1. EXECUTIVE SUMMARY
+--------------------------------------------------------------------------------
+The raw structured log dataset contains 2,062,361 entries across 13 attributes.
+During preprocessing:
+  - 570,179 exact duplicate rows were identified and removed.
+  - 2,062,361 timestamps were successfully parsed into datetime64[ns].
+  - Missing value imputation was performed using domain-justified strategies.
+  - String values were sanitized (spaces trimmed, case standardized, symbols preserved).
+  - Resource paths were normalized into a new feature column 'normalized_resource'.
+  - Cleaned output consists of 1,492,182 records and 14 columns.
+
+2. DATASET DIMENSIONS & DEDUPLICATION
+--------------------------------------------------------------------------------
+  - Input row count:       2,062,361
+  - Input column count:    13
+  - Duplicate rows found:  570,179
+  - Deduplicated row count: 1,492,182
+  - Output column count:   14
+
+3. TIMESTAMP CONVERSION
+--------------------------------------------------------------------------------
+  - Source datatype:       str
+  - Final datatype:        datetime64[us]
+  - Successfully parsed:   2,062,361
+  - Invalid / NaT count:   0
+  - Temporal Range:        2023-01-08 08:07:15 to 2024-02-19 21:44:01
+
+4. MISSING VALUES HANDLING STRATEGY & BEFORE/AFTER
+--------------------------------------------------------------------------------
+       column_name            data_type  missing_before missing_pct_before                                     imputation_strategy  missing_after missing_pct_after
+     category_type categorical (string)         1470016             98.51%              Impute 'unknown' for unclassified requests              0             0.00%
+           payload categorical (string)         1481068             99.26%       Impute 'none' for benign requests without payload              0             0.00%
+         timestamp       datetime64[ns]               0              0.00%                 Retain NaT; do not fabricate fake dates              0             0.00%
+         client_ip categorical (string)               0              0.00%         Impute 'unknown' for missing network identifier              0             0.00%
+       client_port    numerical (int64)               0              0.00%                            Impute 0 for unrecorded port              0             0.00%
+        user_agent categorical (string)           26139              1.75%              Impute 'unknown' for missing client header              0             0.00%
+   accept_language categorical (string)         1443335             96.73%            Impute 'unknown' for missing language header              0             0.00%
+          proxy_ip categorical (string)         1444520             96.81%       Impute 'none' indicating direct client connection              0             0.00%
+      request_type categorical (string)         1492182            100.00%               Impute 'unknown' for unrecorded HTTP verb              0             0.00%
+       status_code    numerical (int64)         1492182            100.00% Impute 0 indicating unrecorded response/connection drop              0             0.00%
+resource_requested categorical (string)         1492182            100.00%  Derive from path payload if available, else '/unknown'              0             0.00%
+        bytes_sent    numerical (int64)         1492182            100.00%                        Impute 0 for 0 bytes transferred              0             0.00%
+          referrer categorical (string)         1492182            100.00%                 Impute 'none' indicating direct traffic              0             0.00%
+
+5. URL / PATH NORMALIZATION EXAMPLES
+--------------------------------------------------------------------------------
+Input URL / Resource                          -> Normalized URL Path                          
+--------------------------------------------------------------------------------------------
+/index.html                                   -> /index                                       
+/INDEX.HTML                                   -> /index                                       
+/login.html                                   -> /login                                       
+/login.htm                                    -> /login                                       
+/products/                                    -> /products                                    
+/index                                        -> /index                                       
+/about.html?user=alice&lang=en                -> /about?user=alice&lang=en                    
+logout.htm                                    -> /logout                                      
+main.htm                                      -> /main                                        
+http://example.com/index.html?search=test     -> http://example.com/index?search=test         
+
+6. DATA TYPE STANDARDIZATION & ATTRIBUTE COMPARISON
+--------------------------------------------------------------------------------
+          attribute original_dtype  cleaned_dtype  missing_before  missing_after
+      category_type            str         string         2035084              0
+            payload            str         string         2046233              0
+          timestamp            str datetime64[us]               0              0
+          client_ip            str         string               0              0
+        client_port          int64          int64               0              0
+         user_agent            str         string           26153              0
+    accept_language            str         string         2000685              0
+           proxy_ip            str         string         2014477              0
+       request_type        float64         string         2062361              0
+        status_code        float64          int64         2062361              0
+ resource_requested        float64         string         2062361              0
+         bytes_sent        float64          int64         2062361              0
+           referrer        float64         string         2062361              0
+normalized_resource      N/A (new)         string         2062361              0
+
+7. CONCLUSION AND SUITABILITY FOR ML
+--------------------------------------------------------------------------------
+The dataset has been completely sanitized, standardized, and validated.
+All fields have well-defined semantics, zero unexpected nulls, proper numeric/temporal types,
+and standardized categorical strings. It is now fully prepared for Exploratory Data Analysis (EDA),
+feature engineering, anomaly detection, and machine-learning modeling.
+================================================================================

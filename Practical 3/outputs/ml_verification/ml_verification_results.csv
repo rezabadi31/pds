@@ -1,0 +1,5 @@
+Dataset,Model,Accuracy,Precision,Recall,F1 Score
+Structured Data (Practical 2),Decision Tree Classifier,0.9949,0.9957,0.9949,0.9952
+Preprocessed Data (Practical 3),Decision Tree Classifier,0.9938,0.9941,0.9938,0.9939
+Structured Data (Practical 2),Random Forest Classifier,0.9947,0.99,0.9947,0.9923
+Preprocessed Data (Practical 3),Random Forest Classifier,0.9921,0.9855,0.9921,0.9887

@@ -1,0 +1,140 @@
+<?xml version="1.0"?>
+<AlteryxDocument yxmdVer="2023.1">
+  <Nodes>
+    <!-- Node 1: Input Data -->
+    <Node ToolID="1">
+      <GuiSettings Plugin="AlteryxBasePluginsGui.DbFileInput.DbFileInput">
+        <Position x="54" y="126" />
+      </GuiSettings>
+      <Properties>
+        <Configuration>
+          <Passwords />
+          <File OutputFileName="" RecordLimit="" SearchSubDirs="False" FileFormat="0">
+            D:\Pds Practicals\Practical 4\data\processed\labeled_access_logs.csv
+          </File>
+          <FormatSpecificOptions>
+            <CodePage>65001</CodePage>
+            <Delimeter>,</Delimeter>
+            <IgnoreQuotes>False</IgnoreQuotes>
+            <HeaderRow>True</HeaderRow>
+          </FormatSpecificOptions>
+        </Configuration>
+        <Annotation DisplayMode="0">
+          <Name>1. Input Telemetry Data</Name>
+          <DefaultAnnotationText>labeled_access_logs.csv</DefaultAnnotationText>
+        </Annotation>
+      </Properties>
+      <EngineSettings EngineDll="AlteryxBasePluginsEngine.dll" EngineDllEntryPoint="AlteryxDbFileInput" />
+    </Node>
+
+    <!-- Node 2: Data Health / Feature Types (Auto Field) -->
+    <Node ToolID="2">
+      <GuiSettings Plugin="AlteryxBasePluginsGui.AutoField.AutoField">
+        <Position x="210" y="126" />
+      </GuiSettings>
+      <Properties>
+        <Configuration>
+          <Fields>
+            <Field field="client_ip" selected="True" />
+            <Field field="timestamp" selected="True" />
+            <Field field="payload" selected="True" />
+            <Field field="normalized_resource" selected="True" />
+            <Field field="user_agent" selected="True" />
+          </Fields>
+        </Configuration>
+        <Annotation DisplayMode="0">
+          <Name>2. Data Health &amp; Types</Name>
+          <DefaultAnnotationText>Auto Field Optimization</DefaultAnnotationText>
+        </Annotation>
+      </Properties>
+      <EngineSettings EngineDll="AlteryxBasePluginsEngine.dll" EngineDllEntryPoint="AlteryxAutoField" />
+    </Node>
+
+    <!-- Node 3: Build Features / Formula Transformation -->
+    <Node ToolID="3">
+      <GuiSettings Plugin="AlteryxBasePluginsGui.Formula.Formula">
+        <Position x="366" y="126" />
+      </GuiSettings>
+      <Properties>
+        <Configuration>
+          <FormulaFields>
+            <FormulaField expression="DateTimeHour([timestamp])" field="request_hour" size="2" type="Int16" />
+            <FormulaField expression="IIF(DateTimeHour([timestamp]) &lt; 6, 1, 0)" field="is_night" size="2" type="Int16" />
+            <FormulaField expression="Length([normalized_resource])" field="url_length" size="4" type="Int32" />
+            <FormulaField expression="REGEX_CountMatches([normalized_resource], '/')" field="path_depth" size="2" type="Int16" />
+            <FormulaField expression="IIF(REGEX_Match([user_agent], '.*(bot|spider|crawl|scanner|curl|wget).*'), 1, 0)" field="is_bot" size="2" type="Int16" />
+          </FormulaFields>
+        </Configuration>
+        <Annotation DisplayMode="0">
+          <Name>3. Build Features / Transform</Name>
+          <DefaultAnnotationText>Calculate Time, URL, &amp; Bot Features</DefaultAnnotationText>
+        </Annotation>
+      </Properties>
+      <EngineSettings EngineDll="AlteryxBasePluginsEngine.dll" EngineDllEntryPoint="AlteryxFormula" />
+    </Node>
+
+    <!-- Node 4: Feature Summary (Summarize) -->
+    <Node ToolID="4">
+      <GuiSettings Plugin="AlteryxSpatialPluginsGui.Summarize.Summarize">
+        <Position x="522" y="126" />
+      </GuiSettings>
+      <Properties>
+        <Configuration>
+          <SummarizeFields>
+            <SummarizeField field="client_ip" action="GroupBy" rename="client_ip" />
+            <SummarizeField field="client_ip" action="Count" rename="requests_per_ip" />
+            <SummarizeField field="normalized_resource" action="CountDistinct" rename="unique_urls_per_ip" />
+          </SummarizeFields>
+        </Configuration>
+        <Annotation DisplayMode="0">
+          <Name>4. Feature Summary Aggregates</Name>
+          <DefaultAnnotationText>Group By client_ip &amp; Count</DefaultAnnotationText>
+        </Annotation>
+      </Properties>
+      <EngineSettings EngineDll="AlteryxSpatialPluginsEngine.dll" EngineDllEntryPoint="AlteryxSummarize" />
+    </Node>
+
+    <!-- Node 5: Output ML-Ready Dataset -->
+    <Node ToolID="5">
+      <GuiSettings Plugin="AlteryxBasePluginsGui.DbFileOutput.DbFileOutput">
+        <Position x="678" y="126" />
+      </GuiSettings>
+      <Properties>
+        <Configuration>
+          <File FileFormat="0" MaxRecords="">
+            D:\Pds Practicals\Practical 5\data\processed\feature_engineered_access_logs.csv
+          </File>
+          <Passwords />
+          <FormatSpecificOptions>
+            <LineEndStyle>CRLF</LineEndStyle>
+            <Delimeter>,</Delimeter>
+            <WriteBOM>True</WriteBOM>
+          </FormatSpecificOptions>
+        </Configuration>
+        <Annotation DisplayMode="0">
+          <Name>5. Output Feature Dataset</Name>
+          <DefaultAnnotationText>feature_engineered_access_logs.csv</DefaultAnnotationText>
+        </Annotation>
+      </Properties>
+      <EngineSettings EngineDll="AlteryxBasePluginsEngine.dll" EngineDllEntryPoint="AlteryxDbFileOutput" />
+    </Node>
+  </Nodes>
+  <Connections>
+    <Connection>
+      <Origin ToolID="1" Connection="Output" />
+      <Destination ToolID="2" Connection="Input" />
+    </Connection>
+    <Connection>
+      <Origin ToolID="2" Connection="Output" />
+      <Destination ToolID="3" Connection="Input" />
+    </Connection>
+    <Connection>
+      <Origin ToolID="3" Connection="Output" />
+      <Destination ToolID="4" Connection="Input" />
+    </Connection>
+    <Connection>
+      <Origin ToolID="3" Connection="Output" />
+      <Destination ToolID="5" Connection="Input" />
+    </Connection>
+  </Connections>
+</AlteryxDocument>

@@ -1,0 +1,7 @@
+label,count,percentage
+benign,1487823,99.7079%
+brute_force,1342,0.0899%
+path_traversal,1098,0.0736%
+xss,954,0.0639%
+command_injection,805,0.0539%
+sqli,160,0.0107%

@@ -1,0 +1,90 @@
+============================================================
+FIELD IDENTIFICATION & STRUCTURE REPORT
+============================================================
+
+1. DATASET FILE
+------------------------------------------------------------
+File Name:            cj.log
+File Size:            225,867,389 bytes (215.40 MB)
+Detected Format:      Web Honeypot / Intrusion Detection Access Log (JSON Array)
+
+2. EXACT COUNTING & RECONCILIATION AUDIT
+------------------------------------------------------------
+Physical lines in file       : 2,062,365
+Blank lines                  : 934
+Non-blank physical lines     : 2,061,431
+Multi-entry lines with ']['  : 911
+Extra records from splits    : +930
+Total extracted log records  : 2,062,361
+Successfully parsed records  : 2,062,330
+Malformed / failed records   : 31
+Other skipped records        : 0
+Parsing success rate         : 99.9985%
+
+Reconciliation Formulas:
+  [1] Physical lines (2,062,365) = Blank (934) + Non-blank (2,061,431) [MATCH: True]
+  [2] Total extracted records (2,062,361) = Successfully parsed (2,062,330) + Malformed (31) [MATCH: True]
+  [3] Non-blank lines (2,061,431) = Successfully parsed (2,062,330) + Malformed (31) - Extra split additions (930) [MATCH: True]
+  [4] Explanation of the 4-record delta between physical lines (2,062,365) and extracted records (2,062,361):
+      934 blank lines were omitted (-934), while 911 multi-record lines yielded +930 extra records (+930).
+      Net delta: -934 + 930 = -4 records (2,062,365 physical lines - 4 = 2,062,361 extracted records).
+
+3. FIELD IDENTIFICATION TABLE
+------------------------------------------------------------
+Field:    category_type
+Example:  "auto"
+Meaning:  Attack classification / probe command identifier
+Use:      Categorize malicious web probes vs legitimate traffic
+
+Field:    payload
+Example:  "ps"
+Meaning:  Command argument or parameter payload value
+Use:      Analyze exploit vectors, commands, or injection signatures
+
+Field:    timestamp
+Example:  "2023-01-08 08:07:15"
+Meaning:  Exact request arrival timestamp (UTC)
+Use:      Time-series traffic trends and burst detection
+
+Field:    client_ip
+Example:  "212.60.12.161"
+Meaning:  Client source IPv4/IPv6 address
+Use:      Identify attacking hosts and geographic origins
+
+Field:    client_port
+Example:  61901
+Meaning:  Client ephemeral source TCP port
+Use:      Trace client connections and connection state
+
+Field:    user_agent
+Example:  "gobuster/3.6"
+Meaning:  HTTP User-Agent client request header
+Use:      Distinguish automated scanners from regular browsers
+
+Field:    accept_language
+Example:  "en"
+Meaning:  HTTP Accept-Language preference header
+Use:      Client localization profiling
+
+Field:    proxy_ip
+Example:  "104.28.209.153"
+Meaning:  Forwarded proxy or CDN (Cloudflare) IP
+Use:      Detect proxy tunneling and real origin IPs
+
+4. MISSING VALUES PER FIELD
+------------------------------------------------------------
+category_type     :  2,035,084 missing ( 98.68%)
+payload           :  2,046,199 missing ( 99.22%)
+timestamp         :          0 missing (  0.00%)
+client_ip         :          0 missing (  0.00%)
+client_port       :          0 missing (  0.00%)
+user_agent        :     26,153 missing (  1.27%)
+accept_language   :  2,000,684 missing ( 97.01%)
+proxy_ip          :  2,014,446 missing ( 97.68%)
+
+5. TIME RANGE
+------------------------------------------------------------
+Earliest Timestamp:   2023-01-08 08:07:15
+Latest Timestamp:     2024-02-19 21:44:01
+Duration:             407 days, 13 hours
+============================================================

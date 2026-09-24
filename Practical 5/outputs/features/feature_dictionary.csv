@@ -1,0 +1,41 @@
+Feature,Type,Description,Source Column,Anomaly Relevance
+request_hour,Numerical (Discrete),Hour of the day (0-23) when the HTTP request arrived,timestamp,Off-peak hours may correlate with automated intrusion scans
+request_day_of_week,Numerical (Discrete),Day of the week (0=Mon to 6=Sun),timestamp,Weekend vs weekday behavioral variance
+is_night,Binary Flag,"Indicator (1) if request arrived during 00:00-06:00, else (0)",timestamp,Probes concentrated during low human operator supervision hours
+requests_per_ip,Numerical (Discrete),Total volume of requests originated from this client IP,client_ip,Extreme volumes indicate aggressive scanning or DoS
+ip_request_rank,Numerical (Discrete),Dense ordinal rank of client IP by total traffic volume (1 = top),client_ip,Prioritizes heavy traffic sources in volume distribution
+time_since_previous_request,Numerical (Continuous),Elapsed time in seconds since previous request from same IP,"client_ip, timestamp",Sub-second deltas suggest automated tool scraping
+mean_inter_request_time_ip,Numerical (Continuous),Average inter-arrival interval for client IP in seconds,"client_ip, timestamp",Distinguishes high-speed automation from manual human browsing
+median_inter_request_time_ip,Numerical (Continuous),Median inter-arrival interval for client IP in seconds,"client_ip, timestamp",Robust measure of pacing unaffected by idle pauses
+min_inter_request_time_ip,Numerical (Continuous),Minimum observed inter-arrival interval for client IP in seconds,"client_ip, timestamp",Detects bursts and concurrent socket flooding
+rapid_request_flag,Binary Flag,"1 if time since previous request <= 1.0 second, else 0",time_since_previous_request,Identifies rapid successive calls characteristic of automated scripts
+requests_per_ip_1min,Numerical (Discrete),Rolling count of requests from same IP in the preceding 60 seconds,"client_ip, timestamp",Detects immediate rate spikes and burst probing
+requests_per_ip_5min,Numerical (Discrete),Rolling count of requests from same IP in the preceding 5 minutes,"client_ip, timestamp",Detects sustained medium-window brute force campaigns
+requests_per_ip_10min,Numerical (Discrete),Rolling count of requests from same IP in the preceding 10 minutes,"client_ip, timestamp",Evaluates long-window crawl volume
+status_404_count_ip,Numerical (Discrete),Total 404 Not Found HTTP responses received by client IP,status_code,High 404 counts indicate directory or file fuzzing
+status_404_ratio_ip,Numerical (Continuous),Proportion of total requests from IP that resulted in 404 (0.0-1.0),status_code,Ratios >0.5 strongly correlate with scanning behavior
+error_status_ratio_ip,Numerical (Continuous),Proportion of requests yielding 4xx/5xx error status codes,status_code,General measure of client error-generation propensity
+high_404_activity_flag,Binary Flag,"1 if 404 ratio >= 0.50 OR 404 count >= 20, else 0",status_404_ratio_ip,Discrete alert trigger for directory brute-forcing
+user_agent_type,Categorical,"Taxonomy classification: browser, bot, scanner, script, unknown",user_agent,Differentiates genuine interactive clients from tool suites
+is_bot,Binary Flag,"1 if client is an identified bot, spider, or script, else 0",user_agent,Flags non-interactive automation engines
+is_scanner,Binary Flag,"1 if client matches known vulnerability/dir scanner signatures, else 0",user_agent,High-confidence signature of reconnaissance tools
+user_agent_length,Numerical (Discrete),Character length of the User-Agent header string,user_agent,Abnormally short or long headers suggest spoofing
+unique_user_agents_per_ip,Numerical (Discrete),Count of distinct User-Agent headers emitted by same client IP,"client_ip, user_agent",User-agent rotation used by evading scanners or proxies
+unique_urls_per_ip,Numerical (Discrete),Count of distinct resource paths requested by client IP,"client_ip, normalized_resource",Broad endpoint sweeps characteristic of web crawlers
+unique_ports_per_ip,Numerical (Discrete),Count of distinct client ephemeral ports utilized,"client_ip, client_port",Port cycling or single-port persistence metrics
+url_entropy,Numerical (Continuous),Character-level Shannon entropy of normalized resource path,normalized_resource,"High entropy flags random hashes, obfuscated injections"
+url_length,Numerical (Discrete),Character length of the requested resource path,normalized_resource,Excessive lengths indicate buffer overflow or deep traversal
+path_depth,Numerical (Discrete),Number of '/' hierarchy delimiters in resource path,normalized_resource,Directory tree traversal depth indicator
+number_of_query_parameters,Numerical (Discrete),Count of key-value query parameters attached to URL,normalized_resource,Parameter fuzzing and complex payload delivery
+special_character_count,Numerical (Discrete),Count of non-alphanumeric characters in URL string,normalized_resource,"High symbol density flags encoding, quotes, and punctuation attacks"
+digit_ratio,Numerical (Continuous),Ratio of numeric digits to total URL length,normalized_resource,Numeric IDs vs hex-encoded shellcode
+letter_ratio,Numerical (Continuous),Ratio of alphabetic characters to total URL length,normalized_resource,Low letter ratio indicates symbol-heavy or binary payloads
+payload_length,Numerical (Discrete),Character length of the request payload body,payload,Unusually large payloads indicate injection attempts
+payload_entropy,Numerical (Continuous),Character-level Shannon entropy of the payload,payload,High entropy highlights encrypted or encoded attack payloads
+contains_sql_keyword,Binary Flag,"1 if payload contains SQL injection syntax (UNION, SELECT, --), else 0",payload,Syntactic signature of database manipulation attempts
+contains_path_traversal,Binary Flag,"1 if URL/payload contains traversal sequences (../, /etc/passwd), else 0","payload, normalized_resource",Directory climbing and sensitive file access signature
+contains_script_tag,Binary Flag,"1 if payload contains XSS markers (<script>, alert, cookie), else 0",payload,Client-side script execution signature
+contains_command_separator,Binary Flag,"1 if payload contains shell separators (; ls, | id, &&), else 0",payload,OS command execution signature
+request_rate_1min,Numerical (Continuous),Instantaneous request arrival rate (requests/sec) in 1-min window,requests_per_ip_1min,Direct measurement of burst traffic intensity
+request_rate_5min,Numerical (Continuous),Sustained request arrival rate (requests/sec) in 5-min window,requests_per_ip_5min,Direct measurement of sustained attack throughput
+failed_pattern_count,Numerical (Discrete),Aggregate count of triggered security heuristic patterns (0-4),Multiple heuristic flags,Compound anomaly intensity score

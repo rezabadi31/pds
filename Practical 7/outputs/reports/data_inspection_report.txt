@@ -1,0 +1,104 @@
+============================================================
+PRACTICAL 7: DATA INSPECTION REPORT
+============================================================
+
+Source Dataset:       D:\Pds Practicals\Practical 6\data\processed\balanced_training_dataset.csv
+Total Records:        60,000
+Total Columns:        79
+Valid Timestamps:     60,000
+Invalid Timestamps:   0
+Unique IPs:           988
+Unique Labels:        6
+Unique Request Types: 1
+Duplicate Rows:       46,513
+Total Missing Values: 0
+
+Label Value Counts:
+  - benign              :   10,000 ( 16.67%)
+  - command_injection   :   10,000 ( 16.67%)
+  - path_traversal      :   10,000 ( 16.67%)
+  - sqli                :   10,000 ( 16.67%)
+  - xss                 :   10,000 ( 16.67%)
+  - brute_force         :   10,000 ( 16.67%)
+
+Column Names & Data Types:
+  - category_type                 : object
+  - payload                       : object
+  - timestamp                     : datetime64[ns]
+  - client_ip                     : object
+  - client_port                   : int64
+  - user_agent                    : object
+  - accept_language               : object
+  - proxy_ip                      : object
+  - request_type                  : object
+  - status_code                   : int64
+  - resource_requested            : object
+  - bytes_sent                    : int64
+  - referrer                      : object
+  - normalized_resource           : object
+  - label                         : object
+  - request_hour                  : int64
+  - request_day_of_week           : int64
+  - request_day                   : int64
+  - request_month                 : int64
+  - is_night                      : int64
+  - requests_per_ip               : int64
+  - ip_request_rank               : int64
+  - time_since_previous_request   : float64
+  - requests_per_ip_1min          : int64
+  - requests_per_ip_5min          : int64
+  - requests_per_ip_10min         : int64
+  - mean_inter_request_time_ip    : float64
+  - median_inter_request_time_ip  : float64
+  - min_inter_request_time_ip     : float64
+  - max_inter_request_time_ip     : float64
+  - rapid_request_flag            : int64
+  - unique_urls_per_ip            : int64
+  - unique_ports_per_ip           : int64
+  - unique_user_agents_per_ip     : int64
+  - status_404_count_ip           : int64
+  - status_403_count_ip           : int64
+  - status_500_count_ip           : int64
+  - status_404_ratio_ip           : float64
+  - status_403_ratio_ip           : float64
+  - error_status_ratio_ip         : float64
+  - high_404_activity_flag        : int64
+  - user_agent_type               : object
+  - is_bot                        : int64
+  - is_scanner                    : int64
+  - user_agent_length             : int64
+  - url_entropy                   : float64
+  - url_length                    : int64
+  - path_depth                    : int64
+  - query_parameter_count         : int64
+  - special_character_count       : int64
+  - digit_ratio                   : float64
+  - letter_ratio                  : float64
+  - number_of_query_parameters    : int64
+  - payload_length                : int64
+  - payload_entropy               : float64
+  - contains_sql_keyword          : int64
+  - contains_path_traversal       : int64
+  - contains_script_tag           : int64
+  - contains_command_separator    : int64
+  - request_rate_1min             : float64
+  - request_rate_5min             : float64
+  - failed_pattern_count          : int64
+  - ft_COUNT_requests             : int64
+  - ft_NUM_UNIQUE_resource        : int64
+  - ft_NUM_UNIQUE_user_agent      : int64
+  - ft_NUM_UNIQUE_client_port     : int64
+  - ft_MEAN_client_port           : float64
+  - ft_STD_client_port            : float64
+  - ft_MIN_client_port            : float64
+  - ft_MAX_client_port            : float64
+  - ts_activity_signal            : float64
+  - tsfresh_mean                  : float64
+  - tsfresh_standard_deviation    : float64
+  - tsfresh_variance              : float64
+  - tsfresh_minimum               : float64
+  - tsfresh_maximum               : float64
+  - tsfresh_median                : float64
+  - tsfresh_abs_energy            : float64
+  - tsfresh_mean_abs_change       : float64
+  - timestamp_raw                 : object

@@ -1,0 +1,57 @@
+============================================================
+PRACTICAL 2 - PARSING REPORT
+============================================================
+
+Input file:
+D:\Pds Practicals\Practical 1\data\raw\cj.log
+
+Input size:
+225,867,389 bytes (215.40 MB)
+
+Physical lines:
+2,062,365
+
+Blank lines:
+934
+
+Extracted records:
+2,062,361
+
+Successfully parsed:
+2,062,361
+
+Malformed records:
+0
+
+Parsing success rate:
+100.0000%
+
+Structured columns:
+- category_type
+- payload
+- timestamp
+- client_ip
+- client_port
+- user_agent
+- accept_language
+- proxy_ip
+- request_type
+- status_code
+- resource_requested
+- bytes_sent
+- referrer
+
+Unavailable Apache/Nginx fields:
+- request_type (preserved as NaN; not present in Honeypot JSON-array schema)
+- status_code (preserved as NaN; not present in Honeypot JSON-array schema)
+- resource_requested (preserved as NaN; not present in Honeypot JSON-array schema)
+- bytes_sent (preserved as NaN; not present in Honeypot JSON-array schema)
+- referrer (preserved as NaN; not present in Honeypot JSON-array schema)
+
+Output file:
+D:\Pds Practicals\Practical 2\data\processed\structured_access_logs.csv
+
+Status:
+SUCCESS
+
+============================================================

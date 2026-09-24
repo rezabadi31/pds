@@ -1,0 +1,25 @@
+================================================================================
+FEATURETOOLS AUTOMATED FEATURE ENGINEERING REPORT
+================================================================================
+
+Tool:                    Featuretools (Open-Source)
+Entity Hierarchy:        client_ip (Parent) <--- 1:N ---> requests (Child)
+Time Index Column:       timestamp
+Synthesis Depth:         max_depth = 2
+Generated Features:      8
+Unique Client Entities:  16,680
+Execution Duration:      0.53 seconds
+Target Leakage Status:   Zero leakage (label/label_reason excluded)
+
+Summary Statistics of Generated Features:
+--------------------------------------------------------------------------------
+                             count          mean           std     min       25%        50%       75%       max
+ft_COUNT_requests          16680.0     89.459353   4806.063125     1.0      1.00      1.000      3.00  503966.0
+ft_NUM_UNIQUE_resource     16680.0      1.020743      0.843423     1.0      1.00      1.000      1.00      81.0
+ft_NUM_UNIQUE_user_agent   16680.0      1.668705     29.553432     1.0      1.00      1.000      1.00    3631.0
+ft_NUM_UNIQUE_client_port  16680.0     11.484173    202.795793     1.0      1.00      1.000      3.00   11651.0
+ft_MEAN_client_port        16680.0  45820.636885  12470.879609  1026.0  39893.75  47547.365  54952.75   65530.0
+ft_STD_client_port         16680.0   2687.890176   4978.390199     0.0      0.00      0.000   4049.75   40903.3
+ft_MIN_client_port         16680.0  42835.886451  14084.083666  1025.0  35390.00  44683.000  53304.00   65530.0
+ft_MAX_client_port         16680.0  48695.842026  13164.225041  1026.0  41803.50  51900.500  58702.25   65534.0
+================================================================================

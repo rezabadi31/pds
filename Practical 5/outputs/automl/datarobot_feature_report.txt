@@ -1,0 +1,22 @@
+================================================================================
+DATAROBOT AUTOMATED FEATURE ENGINEERING & FEATURE DISCOVERY REPORT
+================================================================================
+
+EXECUTION STATUS:
+NOT EXECUTED - ENVIRONMENT/LICENSE NOT AVAILABLE
+
+EXPLANATION & ARCHITECTURAL SUMMARY:
+--------------------------------------------------------------------------------
+DataRobot automated feature engineering was not executed because an accessible
+DataRobot enterprise/SaaS environment was unavailable.
+
+DataRobot Feature Discovery Capabilities (Theoretical Evaluation):
+1. Secondary Dataset Joining: Automatically discovers foreign-key relationships
+   between access logs and threat intelligence feeds (e.g. IP reputation, GeoIP).
+2. Automated Temporal Aggregations: Generates rolling window statistics (e.g. max,
+   sum, count over 1h, 6h, 24h) similar to our custom ip_features.py module.
+3. Text Feature Extraction: Applies word n-grams, tf-idf, and character embeddings
+   to URL paths and payload text.
+4. Feature Reduction & Pruning: Uses ACE (Alternating Conditional Expectations) and
+   permutation importance to discard uninformative or collinear candidate features.
+================================================================================

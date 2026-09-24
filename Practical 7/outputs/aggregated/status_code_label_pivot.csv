@@ -1,0 +1,2 @@
+status_code,benign,brute_force,command_injection,path_traversal,sqli,xss
+0,10000,10000,10000,10000,10000,10000

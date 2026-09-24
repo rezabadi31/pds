@@ -1,0 +1,130 @@
+================================================================================
+PRACTICAL 4: BASIC REQUEST CLASSIFICATION REPORT
+Title: To label the requests as Benign or Attack from dataset
+Generated: 2026-09-23 18:47:39
+Total Execution Time: 23.96 seconds
+================================================================================
+
+1. EXECUTIVE SUMMARY
+--------------------------------------------------------------------------------
+The preprocessed access log dataset containing 1,492,182 records was classified
+using a strictly deterministic, rule-based security classification engine.
+Total Benign Requests: 1,487,823 (99.71%)
+Total Attack Requests: 4,359 (0.29%)
+
+2. CLASSIFICATION BREAKDOWN
+--------------------------------------------------------------------------------
+            label   count percentage
+           benign 1487823   99.7079%
+      brute_force    1342    0.0899%
+   path_traversal    1098    0.0736%
+              xss     954    0.0639%
+command_injection     805    0.0539%
+             sqli     160    0.0107%
+
+3. BRUTE FORCE DETECTION DETAILS
+--------------------------------------------------------------------------------
+  - Login/Auth Candidate Requests: 1,536
+  - Unique Client IPs Investigated: 187
+  - Configured Threshold:           >= 10 attempts
+  - Configured Rolling Window:       10 minutes
+  - Unique Brute-Force IPs Flagged: 82
+  - Total Requests Labeled Brute:   1,346
+
+4. RULE SPECIFICATIONS & DETERMINISTIC PRIORITY
+--------------------------------------------------------------------------------
+                          attack_type  priority  detected_records                                                                  detection_method                          example_target
+                 SQL Injection (sqli)         1               160           Regex matching (UNION SELECT, boolean tautologies, SQL comments, SLEEP)            payload / resource_requested
+      Path Traversal (path_traversal)         2              1098              Regex matching (../, ..\, %2e%2e%2f, /etc/passwd, win.ini, boot.ini)            resource_requested / payload
+Command Injection (command_injection)         3               805                         Regex matching (;ls, ;cat, |id|, sh /tmp/, wget droppers)                 payload / category_type
+           Cross-Site Scripting (xss)         4               954                       Regex matching (<script>, alert, document.cookie, onerror=)                                 payload
+            Brute Force (brute_force)         5              1342 Temporal aggregation (>=10 login attempts within 10-minute rolling window per IP) client_ip + timestamp + login endpoints
+                      Benign (benign)         6           1487823                                     Default fallback (No attack pattern detected)                          All attributes
+
+5. MANUAL DATASET EXAMPLES (ACTUAL LOG OBSERVATIONS)
+--------------------------------------------------------------------------------
+Example 1:
+  Request/Resource: /unknown
+  Payload:          -1/**/AND/**/1=2/**/UNION/**/ALL/**/SELECT/**/0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,concat(0x3C7230783E,pn_uname,0x3a,pn_pass,0x3C7230783E),0,0,0/**/FROM/**/md_users/**/WHERE/**/pn_uid=$id/*
+  Client IP:        42.106.39.186
+  Label:            sqli
+  Reason:           SQL injection pattern detected (SQL keywords, comments, or tautology)
+
+Example 2:
+  Request/Resource: /unknown
+  Payload:          -1/**/AND/**/1=2/**/UNION/**/ALL/**/SELECT/**/0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,concat(0x3C7230783E,pn_uname,0x3a,pn_pass,0x3C7230783E),0,0,0/**/FROM/**/md_users/**/WHERE/**/pn_uid=$id/*
+  Client IP:        42.106.39.186
+  Label:            sqli
+  Reason:           SQL injection pattern detected (SQL keywords, comments, or tautology)
+
+Example 3:
+  Request/Resource: ../../../../../HASH(0x562f106f1660)
+  Payload:          ../../../../../HASH(0x562f106f1660)
+  Client IP:        42.106.39.186
+  Label:            path_traversal
+  Reason:           Path traversal sequence detected (directory climbing or sensitive system file probe)
+
+Example 4:
+  Request/Resource: ../../../../../boot.ini
+  Payload:          ../../../../../boot.ini
+  Client IP:        42.106.39.186
+  Label:            path_traversal
+  Reason:           Path traversal sequence detected (directory climbing or sensitive system file probe)
+
+Example 5:
+  Request/Resource: /unknown
+  Payload:          none
+  Client IP:        176.49.60.68
+  Label:            command_injection
+  Reason:           OS command injection pattern detected (shell separator and system binary)
+
+Example 6:
+  Request/Resource: /unknown
+  Payload:          none
+  Client IP:        175.23.94.116
+  Label:            command_injection
+  Reason:           OS command injection pattern detected (shell separator and system binary)
+
+Example 7:
+  Request/Resource: /unknown
+  Payload:          </title><script>alert(document.cookie)</script>
+  Client IP:        42.106.39.186
+  Label:            xss
+  Reason:           Cross-site scripting (XSS) pattern detected (<script>, alert, or document.cookie)
+
+Example 8:
+  Request/Resource: /unknown
+  Payload:          <script>alert(document.cookie);</script>
+  Client IP:        42.106.39.186
+  Label:            xss
+  Reason:           Cross-site scripting (XSS) pattern detected (<script>, alert, or document.cookie)
+
+Example 9:
+  Request/Resource: /unknown
+  Payload:          true
+  Client IP:        42.105.165.217
+  Label:            brute_force
+  Reason:           Brute-force attack detected (>=10 login attempts within 10m from same IP)
+
+Example 10:
+  Request/Resource: /unknown
+  Payload:          P
+  Client IP:        42.105.165.217
+  Label:            brute_force
+  Reason:           Brute-force attack detected (>=10 login attempts within 10m from same IP)
+
+Example 11:
+  Request/Resource: /unknown
+  Payload:          none
+  Client IP:        104.28.209.153
+  Label:            benign
+  Reason:           No attack pattern detected (standard request)
+
+Example 12:
+  Request/Resource: /unknown
+  Payload:          none
+  Client IP:        104.28.209.153
+  Label:            benign
+  Reason:           No attack pattern detected (standard request)
+
+================================================================================

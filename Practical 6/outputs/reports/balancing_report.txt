@@ -1,0 +1,97 @@
+================================================================================
+PRACTICAL 6: DATASET BALANCING FOR ML/DL TRAINING REPORT
+Generated: 2026-09-24 07:31:43
+Total Execution Time: 77.42 seconds
+================================================================================
+
+1. AIM & OBJECTIVE
+--------------------------------------------------------------------------------
+To handle the extreme class imbalance in the cybersecurity honeypot access-log
+telemetry and synthesize balanced training distributions suitable for training
+Machine Learning classifiers and Deep Learning neural architectures without
+inducing target leakage or corrupting test evaluation data.
+
+2. DATASET INFORMATION
+--------------------------------------------------------------------------------
+Total Telemetry Records: 1,492,182
+Feature Columns:         71
+Target Column:           label
+Number of Classes:       6
+Identified Classes:      ['benign', 'command_injection', 'path_traversal', 'sqli', 'xss', 'brute_force']
+
+3. ORIGINAL CLASS DISTRIBUTION
+--------------------------------------------------------------------------------
+            Class   Count Percentage   pct_num
+           benign 1487823   99.7079% 99.707877
+      brute_force    1342    0.0899%  0.089935
+   path_traversal    1098    0.0736%  0.073584
+              xss     954    0.0639%  0.063933
+command_injection     805    0.0539%  0.053948
+             sqli     160    0.0107%  0.010723
+
+4. CLASS IMBALANCE RATIO
+--------------------------------------------------------------------------------
+Majority Class:   benign (1,487,823 records)
+Minority Class:   sqli (160 records)
+Imbalance Ratio:  9,298.89 : 1
+
+5. STRATIFIED TRAIN / TEST SPLIT (80% / 20%)
+--------------------------------------------------------------------------------
+Training Partition (80%): 1,193,745 records
+Testing Partition (20%):  298,437 records
+Protocol: Partitioning was executed BEFORE any balancing operation was invoked.
+
+6. RANDOM UNDERSAMPLING EVALUATION
+--------------------------------------------------------------------------------
+Total Records: 768
+Distribution:  {'benign': 128, 'brute_force': 128, 'command_injection': 128, 'path_traversal': 128, 'sqli': 128, 'xss': 128}
+Analysis: Resolves imbalance by discarding majority records. While computationally
+light, it discards over 99.9% of benign pattern diversity.
+
+7. RANDOM OVERSAMPLING EVALUATION
+--------------------------------------------------------------------------------
+Total Records: 60,000
+Distribution:  {'benign': 10000, 'command_injection': 10000, 'path_traversal': 10000, 'sqli': 10000, 'xss': 10000, 'brute_force': 10000}
+Analysis: Duplicates minority samples with replacement. Effective but risks exact
+decision boundary memorization and overfitting in complex deep learning models.
+
+8. SMOTE (SYNTHETIC MINORITY OVER-SAMPLING TECHNIQUE)
+--------------------------------------------------------------------------------
+Total Records: 60,000
+Distribution:  {'benign': 10000, 'command_injection': 10000, 'path_traversal': 10000, 'sqli': 10000, 'xss': 10000, 'brute_force': 10000}
+Analysis: Interpolates plausible synthetic vectors along k-nearest neighbor (k=5)
+line segments, creating smooth decision regions and superior generalizability.
+
+9. METHODOLOGICAL COMPARISON TABLE
+--------------------------------------------------------------------------------
+                         Method  Total Records  benign  brute_force  command_injection  path_traversal  sqli   xss
+         Original Training Data        1193745 1190258         1074                644             878   128   763
+           Random Undersampling            768     128          128                128             128   128   128
+            Random Oversampling          60000   10000        10000              10000           10000 10000 10000
+SMOTE (Synthetic Over-sampling)          60000   10000        10000              10000           10000 10000 10000
+
+10. FINAL SELECTED METHOD & RATIONALE
+--------------------------------------------------------------------------------
+Selected Method: SMOTE
+Rationale:       SMOTE was selected as the optimal balancing methodology because it synthesizes novel, plausible feature vectors along k-nearest neighbor manifold line segments. Unlike Random Oversampling (which duplicates identical rows and creates exact decision boundary memorization), SMOTE expands minority class variance, providing superior generalization for downstream Deep Learning neural architectures and tree ensemble classifiers without target leakage.
+
+11. FINAL BALANCED DATASET SIZE
+--------------------------------------------------------------------------------
+Balanced Training Records: 60,000 records (saved to balanced_training_dataset.csv)
+
+12. UNTOUCHED TEST DATASET SIZE
+--------------------------------------------------------------------------------
+Test Evaluation Records:   298,437 records (saved to test_dataset.csv)
+Integrity Verification:    100% untouched test partition retaining ground-truth class proportions.
+
+13. LEAKAGE PREVENTION VERIFICATION
+--------------------------------------------------------------------------------
+Target Leakage Check: PASS
+  - Columns 'label' and 'label_reason' were excluded from feature matrix X.
+  - Resampling fit was executed strictly on training fold.
+  - Zero test records or labels were used in synthetic generation.
+
+14. VERIFICATION RESULTS
+--------------------------------------------------------------------------------
+All 13 validation assertions PASSED successfully.
+================================================================================

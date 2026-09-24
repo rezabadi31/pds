@@ -1,0 +1,37 @@
+================================================================================
+FEATURETOOLS AUTOMATED FEATURE DEFINITIONS (DEEP FEATURE SYNTHESIS)
+Entity: client_ip | Child Entity: requests | Max Depth: 2
+================================================================================
+
+Feature:     ft_COUNT_requests
+Primitive:   COUNT(requests)
+Description: Total count of HTTP request events recorded for the client IP
+--------------------------------------------------------------------------------
+Feature:     ft_NUM_UNIQUE_resource
+Primitive:   NUM_UNIQUE(requests.resource)
+Description: Number of distinct resource paths or URLs accessed by the client IP
+--------------------------------------------------------------------------------
+Feature:     ft_NUM_UNIQUE_user_agent
+Primitive:   NUM_UNIQUE(requests.user_agent)
+Description: Number of distinct User-Agent strings transmitted by the client IP
+--------------------------------------------------------------------------------
+Feature:     ft_NUM_UNIQUE_client_port
+Primitive:   NUM_UNIQUE(requests.client_port)
+Description: Number of unique client ephemeral source ports observed
+--------------------------------------------------------------------------------
+Feature:     ft_MEAN_client_port
+Primitive:   MEAN(requests.client_port)
+Description: Arithmetic mean of client source ports used by the client IP
+--------------------------------------------------------------------------------
+Feature:     ft_STD_client_port
+Primitive:   STD(requests.client_port)
+Description: Standard deviation of client source ports (identifies port randomization)
+--------------------------------------------------------------------------------
+Feature:     ft_MIN_client_port
+Primitive:   MIN(requests.client_port)
+Description: Minimum client source port number used by the client IP
+--------------------------------------------------------------------------------
+Feature:     ft_MAX_client_port
+Primitive:   MAX(requests.client_port)
+Description: Maximum client source port number used by the client IP
+--------------------------------------------------------------------------------

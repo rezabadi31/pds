@@ -1,0 +1,27 @@
+================================================================================
+PRACTICAL 5: FEATURE ENGINEERING TOOL COMPARISON & METHODOLOGY REPORT
+Comparing Python Pipeline vs. TPOT, DataRobot, Alteryx, and H2O Driverless AI
+================================================================================
+
+Tool                   | Category        | Cost / License     | Suitability for Cybersecurity Logs 
+-----------------------------------------------------------------------------------------------
+Custom Python (Ours)   | Code-First      | Free / Open-Source | Highest (Custom domain heuristics & entropy)
+TPOT                   | AutoML Genetic  | Free / Open-Source | Medium (Pipeline selector, not domain feature creator)
+DataRobot              | Enterprise Cloud | Commercial Proprietary | High (Automated multi-table discovery & aggregation)
+Alteryx Designer       | Visual ETL/Data | Commercial Proprietary | High (Intuitive drag-and-drop spatial & text prep)
+H2O Driverless AI      | Enterprise AutoML | Commercial Proprietary | Very High (Automated text embeddings & time-series)
+
+================================================================================
+KEY METHODOLOGICAL TAKEAWAYS:
+--------------------------------------------------------------------------------
+1. Domain Heuristics vs Generic AutoML:
+   Automated tools (DataRobot, H2O, TPOT) excel at mathematical transformations
+   (powers, logs, PCA, interaction terms), but CANNOT intuitively invent cybersecurity
+   concepts such as Shannon entropy, SQL syntax signatures, or sliding login windows
+   without human domain knowledge.
+
+2. Performance on 1.49M Records:
+   Executing commercial cloud tools or exhaustive TPOT genetic searches across 1.49M
+   rows is resource-prohibitive. Highly optimized vectorized numpy/pandas routines
+   complete full dataset transformations in seconds while preserving raw data integrity.
+================================================================================
