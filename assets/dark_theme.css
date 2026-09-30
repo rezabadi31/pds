@@ -1,0 +1,388 @@
+/* ==========================================================================
+   ROX SECURITY INTELLIGENCE PLATFORM — DARK CYBERSECURITY STYLESHEET
+   Clean, modern, product-grade dark UI with neon cyber accents & rounded cards
+   ========================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+:root {
+    --bg-main: #080B12;
+    --bg-secondary: #10151F;
+    --card-bg: #151B26;
+    --card-elevated: #1B2330;
+    --text-primary: #F5F7FA;
+    --text-secondary: #A7B0BE;
+    --text-muted: #64748B;
+    --accent-purple: #6C63FF;
+    --accent-cyan: #00D9FF;
+    --color-success: #39D98A;
+    --color-warning: #FFB547;
+    --color-danger: #FF5C7A;
+    --border-subtle: rgba(255, 255, 255, 0.08);
+    --border-accent: rgba(108, 99, 255, 0.35);
+    --shadow-card: 0 4px 20px rgba(0, 0, 0, 0.4);
+    --shadow-glow: 0 0 15px rgba(108, 99, 255, 0.25);
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 16px;
+}
+
+/* Global Container Tweaks */
+.main .block-container {
+    padding-top: 1.5rem;
+    padding-bottom: 3rem;
+    padding-left: 2rem;
+    padding-right: 2rem;
+    max-width: 1440px;
+    background-color: var(--bg-main);
+}
+
+body, [data-testid="stAppViewContainer"] {
+    background-color: var(--bg-main) !important;
+    color: var(--text-primary) !important;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
+}
+
+/* Sidebar Customization */
+[data-testid="stSidebar"] {
+    background-color: var(--bg-secondary) !important;
+    border-right: 1px solid var(--border-subtle) !important;
+}
+
+[data-testid="stSidebar"] [data-testid="stMarkdownContainer"] p {
+    color: var(--text-secondary);
+}
+
+/* Product Hero Banner */
+.product-hero {
+    background: linear-gradient(135deg, #10151F 0%, #151B26 50%, #1B1E30 100%);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-lg);
+    padding: 2.2rem 2.5rem;
+    margin-bottom: 2rem;
+    position: relative;
+    overflow: hidden;
+    box-shadow: var(--shadow-card);
+}
+
+.product-hero::after {
+    content: "";
+    position: absolute;
+    top: -80px;
+    right: -80px;
+    width: 280px;
+    height: 280px;
+    background: radial-gradient(circle, rgba(108, 99, 255, 0.18) 0%, rgba(0, 217, 255, 0) 70%);
+    border-radius: 50%;
+    pointer-events: none;
+}
+
+.product-hero-eyebrow {
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--accent-cyan);
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.product-hero-title {
+    font-size: 2.3rem;
+    font-weight: 800;
+    color: #FFFFFF;
+    line-height: 1.2;
+    margin: 0;
+    letter-spacing: -0.02em;
+}
+
+.product-hero-subtitle {
+    font-size: 1.05rem;
+    color: var(--text-secondary);
+    margin-top: 0.6rem;
+    margin-bottom: 1.4rem;
+    font-weight: 400;
+    max-width: 800px;
+    line-height: 1.5;
+}
+
+/* Cyber KPI Metric Cards */
+.kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+    gap: 1.1rem;
+    margin-bottom: 2.2rem;
+}
+
+.kpi-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-md);
+    padding: 1.25rem 1.4rem;
+    box-shadow: var(--shadow-card);
+    transition: all 0.2s ease-in-out;
+    position: relative;
+    overflow: hidden;
+}
+
+.kpi-card:hover {
+    transform: translateY(-2px);
+    border-color: var(--border-accent);
+    box-shadow: var(--shadow-glow);
+    background: var(--card-elevated);
+}
+
+.kpi-card::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    background: var(--accent-purple);
+}
+
+.kpi-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-secondary);
+    margin-bottom: 0.4rem;
+}
+
+.kpi-value {
+    font-size: 1.75rem;
+    font-weight: 800;
+    color: #FFFFFF;
+    line-height: 1.1;
+    margin-bottom: 0.35rem;
+    font-family: 'JetBrains Mono', monospace;
+}
+
+.kpi-sub {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+
+/* Product Card Grid */
+.product-card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 1.25rem;
+    margin-top: 1rem;
+    margin-bottom: 2.5rem;
+}
+
+.product-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-md);
+    padding: 1.5rem;
+    box-shadow: var(--shadow-card);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.product-card:hover {
+    transform: translateY(-3px);
+    border-color: var(--border-accent);
+    background: var(--card-elevated);
+    box-shadow: var(--shadow-glow);
+}
+
+.product-card-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.85rem;
+}
+
+.product-pill {
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--accent-cyan);
+    background: rgba(0, 217, 255, 0.1);
+    border: 1px solid rgba(0, 217, 255, 0.25);
+    padding: 0.25rem 0.65rem;
+    border-radius: 4px;
+}
+
+.status-badge-completed {
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: var(--color-success);
+    background: rgba(57, 217, 138, 0.1);
+    border: 1px solid rgba(57, 217, 138, 0.25);
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+}
+
+.product-card-title {
+    font-size: 1.18rem;
+    font-weight: 700;
+    color: #FFFFFF;
+    margin-top: 0.2rem;
+    margin-bottom: 0.5rem;
+    line-height: 1.35;
+}
+
+.product-card-desc {
+    font-size: 0.88rem;
+    color: var(--text-secondary);
+    line-height: 1.5;
+    margin-bottom: 1.25rem;
+    flex-grow: 1;
+}
+
+/* Detail Section Containers */
+.detail-section {
+    background: var(--card-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-md);
+    padding: 1.6rem 2rem;
+    margin-bottom: 1.5rem;
+    box-shadow: var(--shadow-card);
+}
+
+.detail-section-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #FFFFFF;
+    letter-spacing: 0.04em;
+    margin-bottom: 1.1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    border-bottom: 1px solid var(--border-subtle);
+    padding-bottom: 0.75rem;
+}
+
+.detail-badge-pill {
+    background: rgba(108, 99, 255, 0.15);
+    color: var(--accent-purple);
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 0.2rem 0.6rem;
+    border-radius: 4px;
+    border: 1px solid rgba(108, 99, 255, 0.3);
+}
+
+/* Rox Chat & Assistant Interface */
+.rox-header-card {
+    background: linear-gradient(135deg, #151B26 0%, #1A2234 100%);
+    border: 1px solid rgba(108, 99, 255, 0.35);
+    border-radius: var(--radius-lg);
+    padding: 1.8rem 2.2rem;
+    margin-bottom: 1.8rem;
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    box-shadow: var(--shadow-glow);
+}
+
+.rox-avatar-circle {
+    width: 68px;
+    height: 68px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #6C63FF 0%, #00D9FF 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.2rem;
+    box-shadow: 0 0 20px rgba(108, 99, 255, 0.5);
+    flex-shrink: 0;
+}
+
+.rox-bubble {
+    background: #1A2234;
+    border: 1px solid var(--border-accent);
+    border-radius: 12px 12px 12px 2px;
+    padding: 1.1rem 1.4rem;
+    color: var(--text-primary);
+    line-height: 1.6;
+    margin-bottom: 1rem;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+.user-bubble {
+    background: #252840;
+    border: 1px solid rgba(108, 99, 255, 0.4);
+    border-radius: 12px 12px 2px 12px;
+    padding: 0.9rem 1.2rem;
+    color: #FFFFFF;
+    line-height: 1.5;
+    margin-bottom: 1rem;
+    margin-left: auto;
+    max-width: 80%;
+}
+
+.quick-chip {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--border-subtle);
+    border-radius: 20px;
+    padding: 0.35rem 0.85rem;
+    font-size: 0.82rem;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.15s ease;
+    display: inline-block;
+    margin: 0.25rem;
+}
+
+.quick-chip:hover {
+    background: rgba(108, 99, 255, 0.2);
+    border-color: var(--accent-purple);
+    color: #FFFFFF;
+}
+
+/* Streamlit Widget Theme Overrides */
+div.stButton > button {
+    background-color: #1B2330 !important;
+    color: var(--text-primary) !important;
+    border: 1px solid var(--border-subtle) !important;
+    border-radius: var(--radius-sm) !important;
+    font-weight: 600 !important;
+    font-size: 0.88rem !important;
+    transition: all 0.15s ease !important;
+}
+
+div.stButton > button:hover {
+    background-color: var(--accent-purple) !important;
+    color: #FFFFFF !important;
+    border-color: var(--accent-purple) !important;
+    box-shadow: 0 0 15px rgba(108, 99, 255, 0.4) !important;
+}
+
+div.stButton > button[kind="primary"] {
+    background: linear-gradient(135deg, #6C63FF 0%, #4D44E0 100%) !important;
+    color: #FFFFFF !important;
+    border: none !important;
+    box-shadow: 0 4px 15px rgba(108, 99, 255, 0.35) !important;
+}
+
+div.stButton > button[kind="primary"]:hover {
+    background: linear-gradient(135deg, #7B73FF 0%, #5B52EE 100%) !important;
+    box-shadow: 0 6px 20px rgba(108, 99, 255, 0.5) !important;
+}
+
+/* Table styling */
+.stDataFrame {
+    border: 1px solid var(--border-subtle) !important;
+    border-radius: var(--radius-sm) !important;
+    background: var(--card-bg) !important;
+}
+
+code, pre {
+    background-color: #0F141F !important;
+    color: var(--accent-cyan) !important;
+    border: 1px solid var(--border-subtle) !important;
+    border-radius: var(--radius-sm) !important;
+    font-family: 'JetBrains Mono', monospace !important;
+}

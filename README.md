@@ -1,85 +1,112 @@
-# Web Honeypot Log Analysis and Attack Detection (Practicals 1 to 10)
+# Rox — Log Intelligence Platform
 
-Production-grade cybersecurity log analysis, feature engineering, and machine learning attack detection platform developed for the Python for Data Science (PDS) laboratory course.
+[![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://streamlit.io/cloud)
+[![Python 3.10+](https://img.shields.io/badge/python-3.10%20%7C%203.11%20%7C%203.12%20%7C%203.13-blue.svg)](https://www.python.org/)
+[![Scikit-Learn](https://img.shields.io/badge/scikit--learn-1.3+-orange.svg)](https://scikit-learn.org/)
+[![Apache Parquet](https://img.shields.io/badge/Apache-Parquet-blueviolet.svg)](https://parquet.apache.org/)
+[![Pipeline Engine](https://img.shields.io/badge/Pipeline-Production%20Ready-success.svg)]()
 
----
+A modern, dark-themed **Log Analysis & Security Intelligence Platform** featuring an integrated AI assistant named **Rox**.
 
-## Streamlit Community Cloud Deployment
-
-To deploy this project to [Streamlit Community Cloud](https://streamlit.io/cloud):
-
-1. **Repository**: `rezabadi31/pds`
-2. **Branch**: `main`
-3. **Main file path**: `app.py` (or `PDS_GUI/app.py`)
-4. **Python Version**: `3.10` / `3.11` / `3.12` / `3.13`
-
-The application will launch directly into the presentation dashboard without needing external services or large raw log downloads.
+The platform is designed around two core functions:
+1. **Practicals Explorer**: An interactive, visual product-style interface presenting what was actually implemented across Practical 1 to 10 using empirical project outputs, charts, and metrics.
+2. **Rox Live Log Analysis Assistant**: An interactive log processing engine where users can upload new server access logs (`.log`, `.txt`, `.csv`) and execute the automated 7-stage pipeline to classify threats, detect suspicious behavior, inspect features, chat with Rox, and download processed datasets.
 
 ---
 
-## Repository Structure
+## 🌟 Platform Capabilities
+
+- **Overview Dashboard**: High-level cybersecurity intelligence overview with real project statistics (2.06M raw records, 570k deduplicated entries, 6 multi-class threat categories, 66 numerical features).
+- **Practicals Explorer (1 to 10)**: 10 interactive cards with subtle hover effects and detailed product views:
+  - **Aim**: Target objective of the data science operation.
+  - **Input / Dataset**: Source file, record count, attributes, and uncleaned baseline state.
+  - **Process**: Visual stage flow from raw telemetry to ML-ready features.
+  - **Techniques & Tools**: Strictly the tools actually used (Python, Pandas, Scikit-learn, imbalanced-learn, Matplotlib, Seaborn, Plotly, tsfresh, Featuretools, PyArrow).
+  - **Algorithm / Method**: Specific algorithms (e.g. streaming generators, regex signatures, SMOTE, Random Forest).
+  - **Observation**: Empirical results extracted directly from project outputs.
+  - **Output**: Actual generated plots, technical reports, and CSV samples.
+- **Rox — Live Log Analysis Assistant**:
+  - Upload `.log`, `.txt`, or `.csv` files or test using the one-click demo honeypot sample.
+  - Executes the automated Practical 10 pipeline: `Load → Parse → Structure → Preprocess → Label → Feature Engineer → Analyze → Export`.
+  - Displays traffic classifications (benign, brute force, sqli, path traversal, xss, command injection), suspicious IPs, burst traffic, and high-entropy URLs.
+  - Features an interactive conversational assistant to ask natural forensic questions (e.g., *"What attacks were detected?"*, *"Which IP generated the most suspicious requests?"*).
+  - One-click downloads for processed CSV, Parquet, and JSON analysis summaries.
+- **Reusable Pipeline View**: Step-by-step breakdown of the 8 automated production stages (01 Load, 02 Parse, 03 Structure, 04 Preprocess, 05 Label, 06 Engineer Features, 07 Validate, 08 Export) with timing metrics.
+- **Security Analytics**: Cross-telemetry exploratory data analysis, 15 security visualization figures, Pearson feature correlation heatmaps, class balancing dynamics (SMOTE vs RUS/ROS), and ML classifier benchmarks.
+
+---
+
+## 🛠️ Technology Stack
+
+- **Core Framework**: Streamlit (with custom dark cybersecurity CSS)
+- **Data Engineering**: Pandas, NumPy
+- **High-Performance Columnar Storage**: Apache Arrow / PyArrow (Snappy-compressed Parquet)
+- **Machine Learning**: Scikit-Learn (Random Forest: 99.97% Acc, 95.26% Macro F1; Logistic Regression baseline)
+- **Dataset Balancing**: Imbalanced-Learn (SMOTE 60k balanced training partition)
+- **Feature Extraction**: Featuretools, tsfresh, Shannon entropy
+- **Visual Analytics**: Matplotlib, Seaborn, Plotly Express
+
+---
+
+## 🚀 Quickstart & Local Execution
+
+1. **Clone the Repository:**
+   ```bash
+   git clone https://github.com/rezabadi31/pds.git
+   cd pds
+   ```
+
+2. **Install Dependencies:**
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+3. **Launch the Platform:**
+   ```bash
+   streamlit run app.py
+   ```
+
+The application opens at `http://localhost:8501`.
+
+---
+
+## 📁 Project Architecture
 
 ```text
-.
-├── app.py                     # Root Streamlit entry point for Streamlit Cloud
-├── requirements.txt           # Unified dependency specification
-├── .gitignore                 # Excludes cache and multi-hundred MB raw files
-├── README.md                  # Project overview and deployment guide
+pds/
+├── app.py                      # Master Streamlit entry point
+├── config.py                   # Central dark theme tokens, paths, baseline metrics
+├── requirements.txt            # Unified dependencies
+├── README.md                   # Platform documentation
 │
-├── PDS_GUI/                   # Master Presentation & Analytics Dashboard
-│   ├── app.py                 # Streamlit dashboard application
-│   ├── config.py              # Path definitions & baseline metrics
-│   ├── requirements.txt       # GUI dependencies
-│   ├── README.md              # GUI specific documentation
-│   └── utils/
-│       ├── charts.py          # Interactive Plotly chart builders
-│       ├── data_loader.py     # Safe, cached data loaders with sample fallback
-│       ├── metrics.py         # Empirical metric synthesizers
-│       └── practical_info.py  # Technical descriptions & Defense Q&As
+├── assets/
+│   └── dark_theme.css          # Dark cybersecurity stylesheet
 │
-├── Practical 1/               # Data Inspection (2.06M records, schema audit)
-├── Practical 2/               # Log Parsing & Structuring (13-column schema)
-├── Practical 3/               # Cleaning & Deduplication (-570k duplicates)
-├── Practical 4/               # Deterministic Attack Labeling (6 classes)
-├── Practical 5/               # Feature Engineering (66 ML features)
-├── Practical 6/               # Dataset Balancing (SMOTE 60k balanced train set)
-├── Practical 7/               # Multi-Dimensional Wrangling & IP Profiling
-├── Practical 8/               # Exploratory Data Analysis (15 analytical charts)
-├── Practical 9/               # Machine Learning Classifiers (Random Forest 99.97% Acc, 95.26% F1)
-│   └── outputs/
-│       ├── models/
-│       │   ├── random_forest.joblib        # 100 Trees Ensemble (19.98 MB)
-│       │   └── logistic_regression.joblib  # Linear Baseline (0.01 MB)
-│       ├── data/
-│       │   └── model_comparison.csv
-│       ├── plots/
-│       └── reports/
-└── Practical 10/              # Reusable 7-Stage Pipeline (Apache Parquet export)
-    ├── data/processed/
-    │   └── feature_engineered_logs.parquet # 97.8% Compressed Parquet Dataset (9.46 MB)
-    ├── pipeline/
-    ├── reports/
-    └── run_pipeline.py
+├── src/
+│   ├── pipeline/
+│   │   └── pipeline_runner.py  # Rox live pipeline executor & chat logic
+│   └── gui/
+│       ├── overview.py         # Platform overview & KPI hero banner
+│       ├── practicals.py       # 10 practical cards & detailed product views
+│       ├── rox.py              # Rox assistant & live log analyzer
+│       ├── pipeline_view.py    # Interactive 8-stage pipeline visualizer
+│       ├── analytics.py        # Deep telemetry & model benchmarks
+│       └── charts.py           # Dark-themed Plotly charts
+│
+├── utils/
+│   ├── practicals_data.py      # Verified practical metadata & 10-stage facts
+│   └── data_loader.py          # Memory-safe cached loaders (previews & plot locator)
+│
+├── data/
+│   └── sample_honeypot.log     # Demo honeypot sample for Rox testing
+│
+└── Practical 1 to 10/          # Source practical implementations, models & outputs
 ```
 
 ---
 
-## Core System Architecture & Results
+## 🛡️ Empirical Integrity Guarantee
 
-- **Ingestion & Structuring**: 2,061,431 raw honeypot connection records parsed into 13 canonical attributes.
-- **Cleaning**: 570,179 exact duplicate records removed (-27.6% redundancy).
-- **Ground-Truth Labeling**: 6 deterministic classes (benign, brute_force, path_traversal, xss, command_injection, sqli) with zero circular ML dependence.
-- **Feature Space**: 66 numerical features capturing request rates, Shannon entropies, lexical ratios, and temporal intervals.
-- **Class Balancing**: Mitigated 9,298:1 class imbalance using SMOTE on training partition only (60,000 balanced rows); 298,437 test records preserved untouched.
-- **Best Model**: Random Forest (100 trees) achieving **99.97% Accuracy** and **95.26% Macro F1**.
-- **Reusable Pipeline**: Practical 10 automated CLI pipeline with Apache Parquet storage yielding **97.8% file size reduction** over CSV.
-
----
-
-## Local Execution
-
-To run the Streamlit dashboard locally:
-
-```powershell
-streamlit run app.py
-```
+- **Zero Fabricated Results**: Every metric, record count, accuracy score, and distribution is read directly from verified output files and logs in `Practical 1` to `Practical 10`.
+- **Dual Experiment Separation**: Experiment A (natural imbalanced split) and Experiment B (SMOTE-balanced train evaluated on untouched test) are preserved strictly separate.
+- **Memory Safety**: Large datasets (multi-hundred MB CSVs) are previewed using cached head-sampling (`@st.cache_data`) to prevent RAM exhaustion.
