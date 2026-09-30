@@ -44,6 +44,8 @@ def render_rox_view():
         st.session_state.rox_analysis = None
     if "rox_messages" not in st.session_state:
         st.session_state.rox_messages = []
+    if "demo_loaded" not in st.session_state:
+        st.session_state.demo_loaded = False
 
     # Upload Section Container
     with st.container():
@@ -68,20 +70,25 @@ def render_rox_view():
 
         with col_demo:
             st.markdown("<div style='height: 28px;'></div>", unsafe_allow_html=True)
-            use_demo = st.button("⚡ Load Demo Honeypot Log", key="btn_load_demo", use_container_width=True)
+            if st.button("⚡ Load Demo Honeypot Log", key="btn_load_demo", use_container_width=True):
+                st.session_state.demo_loaded = True
+                st.toast("Loaded sample_honeypot.log (50 real honeypot connections)", icon="📥")
+                st.rerun()
 
-        target_file = uploaded_file
-        filename = uploaded_file.name if uploaded_file else ""
+        # Resolve target file (uploaded file takes precedence over demo)
+        target_file = None
+        filename = ""
 
-        # Handle demo file loading
-        if use_demo:
+        if uploaded_file is not None:
+            target_file = uploaded_file
+            filename = uploaded_file.name
+            st.session_state.demo_loaded = False
+        elif st.session_state.demo_loaded:
             demo_path = Path("data/sample_honeypot.log")
             if demo_path.exists():
                 with open(demo_path, "rb") as df_in:
-                    import io
                     target_file = io.BytesIO(df_in.read())
                     filename = "sample_honeypot.log"
-                st.toast("Loaded sample_honeypot.log (50 real honeypot connections)", icon="📥")
             else:
                 st.warning("Demo file not found.")
 
@@ -111,26 +118,48 @@ def render_rox_view():
                     analyzer = RoxLogAnalyzer(target_file, filename=filename)
                     analysis = analyzer.run_analysis()
                     st.session_state.rox_analysis = analysis
-                    st.session_state.rox_messages = [
-                        {
-                            "sender": "Rox",
-                            "text": (
-                                f"I completed analyzing `{filename}` using the Practical 10 pipeline. "
-                                f"Processed **{analysis['total_records']:,} requests** across **{analysis['unique_ips']} client IPs** in **{analysis['duration_sec']}s**.\n\n"
-                                f"Detected **{analysis['attack_count']:,} attack events** ({analysis['attack_percentage']}% of traffic). "
-                                f"Review the classification breakdown below or ask me any question!"
-                            )
-                        }
-                    ]
-                st.success("Analysis complete!")
+
+                    total_rec = analysis.get("total_records", 0)
+                    if analysis.get("status") == "SUCCESS" and total_rec > 0:
+                        st.session_state.rox_messages = [
+                            {
+                                "sender": "Rox",
+                                "text": (
+                                    f"I completed analyzing `{filename}` using the Practical 10 pipeline. "
+                                    f"Processed **{total_rec:,} requests** across **{analysis.get('unique_ips', 0)} client IPs** in **{analysis.get('duration_sec', 0.0)}s**.\n\n"
+                                    f"Detected **{analysis.get('attack_count', 0):,} attack events** ({analysis.get('attack_percentage', 0.0)}% of traffic). "
+                                    f"Review the classification breakdown below or ask me any question!"
+                                )
+                            }
+                        ]
+                        st.success(f"Analysis complete! Processed {total_rec:,} requests.")
+                    else:
+                        err_detail = analysis.get("error") or "No records could be parsed."
+                        st.session_state.rox_messages = [
+                            {
+                                "sender": "Rox",
+                                "text": (
+                                    f"⚠️ I finished parsing `{filename}`, but found 0 valid log entries ({err_detail}).\n\n"
+                                    f"Please ensure your file contains server access logs (CLF/Combined), honeypot JSON arrays, or a CSV export."
+                                )
+                            }
+                        ]
+                        st.warning(f"Could not extract log records: {err_detail}")
                 st.rerun()
 
         st.markdown("</div>", unsafe_allow_html=True)
 
     # Display Analysis Dashboard if available
     analysis = st.session_state.rox_analysis
-    if analysis and analysis.get("status") == "SUCCESS":
+    if analysis and analysis.get("status") == "SUCCESS" and analysis.get("total_records", 0) > 0:
         st.markdown("---")
+    elif analysis and analysis.get("total_records", 0) == 0:
+        st.markdown("---")
+        st.warning(
+            f"⚠️ **0 Valid Records Found in `{analysis.get('filename', 'file')}`**.\n\n"
+            f"Supported formats include: Honeypot JSON logs, Apache/Nginx Combined/Common logs, or CSVs with IP & timestamp columns. "
+            f"Click **⚡ Load Demo Honeypot Log** above to test with 50 verified honeypot requests."
+        )
 
         # 1. High-Level Metrics Strip
         m1, m2, m3, m4, m5 = st.columns(5)
