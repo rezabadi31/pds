@@ -1275,3 +1275,7 @@ PRACTICALS_DATA: Dict[int, Dict[str, Any]] = {
         }
     }
 }
+
+# Alias for backward compatibility
+PRACTICALS_EMPIRICAL_DATA = PRACTICALS_DATA
+

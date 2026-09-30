@@ -13,22 +13,41 @@ PRACTICAL_DIRS = {
     i: PROJECT_ROOT / f"Practical {i}" for i in range(1, 11)
 }
 
+class _ThemeDict(dict):
+    """Dictionary that returns safe fallback color instead of raising KeyError."""
+    def __missing__(self, key):
+        fallbacks = {
+            "accent_cyan": "#00D9FF",
+            "accent_purple": "#6C63FF",
+            "primary": "#6C63FF",
+            "secondary": "#00D9FF",
+            "text": "#F5F7FA",
+            "text_muted": "#A7B0BE",
+        }
+        return fallbacks.get(key, "#A7B0BE")
+
 # Dark Cybersecurity Product Color System
-THEME = {
+THEME = _ThemeDict({
     "bg": "#080B12",               # Darkest background
     "bg_secondary": "#10151F",     # Secondary surface background
     "card_bg": "#151B26",          # Default card background
     "card_elevated": "#1B2330",    # Hover/elevated card background
     "text_primary": "#F5F7FA",     # Main heading & high contrast text
     "text_secondary": "#A7B0BE",   # Subtitle & body text
+    "text": "#F5F7FA",             # Alias for text_primary
+    "text_muted": "#A7B0BE",       # Alias for text_secondary
     "accent": "#6C63FF",           # Neon purple/indigo accent
+    "accent_purple": "#6C63FF",    # Alias for purple accent
     "accent_secondary": "#00D9FF", # Cyan secondary accent
+    "accent_cyan": "#00D9FF",      # Alias for cyan accent
+    "primary": "#6C63FF",          # Primary accent
+    "secondary": "#00D9FF",        # Secondary accent
     "success": "#39D98A",          # Green success
     "warning": "#FFB547",          # Amber warning
     "danger": "#FF5C7A",           # Crimson danger
     "border": "rgba(255, 255, 255, 0.08)", # Subtle dark borders
     "border_highlight": "rgba(108, 99, 255, 0.3)",
-}
+})
 
 # Empirical Baseline Numbers (Verified from Project Files)
 BASELINE_METRICS = {
