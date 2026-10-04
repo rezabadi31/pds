@@ -1,55 +1,41 @@
 """config.py
-Log Intelligence Platform — Central Configuration
-Defines the dark color system, project paths, baseline metrics, and practical index.
+Rox Log Intelligence Platform — Central Configuration
+Defines the dark color system, project paths, empirical baseline metrics, and practical index.
+Works completely portably across Local Streamlit and Streamlit Community Cloud without absolute paths.
 """
 
 from pathlib import Path
 
-# Base Paths
+# Base Paths (Strictly Relative to Repository Root)
 PROJECT_ROOT = Path(__file__).resolve().parent
+ASSETS_DIR = PROJECT_ROOT / "assets"
+METADATA_DIR = PROJECT_ROOT / "metadata"
+DATA_DIR = PROJECT_ROOT / "data"
 
-# Practical Directory Registry
+# Practical Directory Registry (for development/inspection, falls back to assets on Cloud)
 PRACTICAL_DIRS = {
     i: PROJECT_ROOT / f"Practical {i}" for i in range(1, 11)
 }
 
-class _ThemeDict(dict):
-    """Dictionary that returns safe fallback color instead of raising KeyError."""
-    def __missing__(self, key):
-        fallbacks = {
-            "accent_cyan": "#00D9FF",
-            "accent_purple": "#6C63FF",
-            "primary": "#6C63FF",
-            "secondary": "#00D9FF",
-            "text": "#F5F7FA",
-            "text_muted": "#A7B0BE",
-        }
-        return fallbacks.get(key, "#A7B0BE")
-
 # Dark Cybersecurity Product Color System
-THEME = _ThemeDict({
-    "bg": "#080B12",               # Darkest background
-    "bg_secondary": "#10151F",     # Secondary surface background
-    "card_bg": "#151B26",          # Default card background
-    "card_elevated": "#1B2330",    # Hover/elevated card background
-    "text_primary": "#F5F7FA",     # Main heading & high contrast text
-    "text_secondary": "#A7B0BE",   # Subtitle & body text
-    "text": "#F5F7FA",             # Alias for text_primary
-    "text_muted": "#A7B0BE",       # Alias for text_secondary
-    "accent": "#6C63FF",           # Neon purple/indigo accent
-    "accent_purple": "#6C63FF",    # Alias for purple accent
-    "accent_secondary": "#00D9FF", # Cyan secondary accent
-    "accent_cyan": "#00D9FF",      # Alias for cyan accent
-    "primary": "#6C63FF",          # Primary accent
-    "secondary": "#00D9FF",        # Secondary accent
-    "success": "#39D98A",          # Green success
+THEME = {
+    "bg": "#060912",               # Darkest background
+    "bg_sidebar": "#080D17",       # Compact sidebar background
+    "card_bg": "#101827",          # Main card background
+    "card_elevated": "#151E2E",    # Elevated card background
+    "border": "rgba(120, 180, 255, 0.12)", # Subtle blue/cyan border
+    "border_hover": "rgba(34, 211, 238, 0.35)",
+    "text_primary": "#F4F7FB",     # Main heading & high contrast text
+    "text_secondary": "#8E9BAD",   # Subtitle & body text
+    "text_muted": "#5A6678",       # Muted text
+    "accent_cyan": "#22D3EE",      # Cyan accent
+    "accent_blue": "#1687FF",      # Blue accent
+    "success": "#21D98B",          # Green success
+    "danger": "#FF5577",           # Red danger
     "warning": "#FFB547",          # Amber warning
-    "danger": "#FF5C7A",           # Crimson danger
-    "border": "rgba(255, 255, 255, 0.08)", # Subtle dark borders
-    "border_highlight": "rgba(108, 99, 255, 0.3)",
-})
+}
 
-# Empirical Baseline Numbers (Verified from Project Files)
+# Empirical Baseline Numbers (Verified from Practical 1-10 Artifacts)
 BASELINE_METRICS = {
     "raw_records": 2_061_431,
     "raw_size_mb": 215.40,
@@ -81,110 +67,100 @@ PRACTICAL_INDEX = [
         "id": 1,
         "number_str": "Practical 01",
         "title": "Access Log Data Exploration",
-        "short_title": "Access Log Data Exploration",
+        "short_title": "Log Exploration",
         "one_liner": "Stream-read raw honeypot JSON arrays, audit 2.06M lines, and explore schema characteristics.",
         "icon": "📥",
         "stage": "Ingestion",
-        "status": "COMPLETED",
-        "badge_color": "#6C63FF",
+        "badge_color": "#22D3EE",
     },
     {
         "id": 2,
         "number_str": "Practical 02",
         "title": "Convert Unstructured Logs into Structured Dataset",
-        "short_title": "Convert Unstructured Logs into Structured Dataset",
+        "short_title": "Structuring",
         "one_liner": "Transform serialized JSON logs into a canonical 13-column tabular dataset with 100% parsing success.",
         "icon": "🧱",
         "stage": "Structuring",
-        "status": "COMPLETED",
-        "badge_color": "#00D9FF",
+        "badge_color": "#1687FF",
     },
     {
         "id": 3,
         "number_str": "Practical 03",
         "title": "Data Cleaning & Preprocessing",
-        "short_title": "Data Cleaning & Preprocessing",
+        "short_title": "Preprocessing",
         "one_liner": "Deduplicate 570,179 rows, resolve 18.4M missing values, parse timestamps, and normalize URLs.",
         "icon": "🧹",
-        "stage": "Preprocessing",
-        "status": "COMPLETED",
-        "badge_color": "#39D98A",
+        "stage": "Cleaning",
+        "badge_color": "#21D98B",
     },
     {
         "id": 4,
         "number_str": "Practical 04",
         "title": "Basic Attack Classification",
-        "short_title": "Basic Attack Classification",
+        "short_title": "Attack Labeling",
         "one_liner": "Apply deterministic signature regexes & temporal rolling rules across 6 security classes.",
         "icon": "🏷️",
-        "stage": "Ground Truth",
-        "status": "COMPLETED",
-        "badge_color": "#FF5C7A",
+        "stage": "Labeling",
+        "badge_color": "#FF5577",
     },
     {
         "id": 5,
         "number_str": "Practical 05",
-        "title": "Feature Engineering",
+        "title": "Feature Engineering & Anomaly Detection",
         "short_title": "Feature Engineering",
-        "one_liner": "Engineer 66 behavioral, lexical, rate, Featuretools, and tsfresh features without label leakage.",
+        "one_liner": "Extract 66 domain, Featuretools, and tsfresh features; run Isolation Forest anomaly detection.",
         "icon": "⚙️",
-        "stage": "Feature Engineering",
-        "status": "COMPLETED",
-        "badge_color": "#6C63FF",
+        "stage": "Features",
+        "badge_color": "#22D3EE",
     },
     {
         "id": 6,
         "number_str": "Practical 06",
-        "title": "Dataset Balancing",
+        "title": "Handling Imbalanced Dataset",
         "short_title": "Dataset Balancing",
-        "one_liner": "Mitigate 9,298:1 imbalance using SMOTE on training split (60k) while preserving 298k test records.",
+        "one_liner": "Address 9,298:1 class imbalance using SMOTE and sampling; produce 60,000 balanced training set.",
         "icon": "⚖️",
         "stage": "Balancing",
-        "status": "COMPLETED",
         "badge_color": "#FFB547",
     },
     {
         "id": 7,
         "number_str": "Practical 07",
-        "title": "Data Wrangling",
+        "title": "Data Wrangling & Aggregation",
         "short_title": "Data Wrangling",
-        "one_liner": "Generate IP attack profiles, hourly/daily time-series, cross-tabs, and filter automated bots.",
-        "icon": "🔄",
+        "one_liner": "Multi-dimensional slicing, temporal grouping, bot filtering, and security IP threat aggregation.",
+        "icon": "🔀",
         "stage": "Wrangling",
-        "status": "COMPLETED",
-        "badge_color": "#00D9FF",
+        "badge_color": "#1687FF",
     },
     {
         "id": 8,
         "number_str": "Practical 08",
-        "title": "Data Visualization & EDA",
-        "short_title": "Data Visualization & EDA",
-        "one_liner": "Analyze 15 exploratory static charts and interactive Plotly visual dashboards across telemetry dimensions.",
+        "title": "Exploratory Data Analysis (EDA)",
+        "short_title": "EDA & Telemetry",
+        "one_liner": "15 statistical telemetry visualizations, correlation analysis, and behavioral distributions.",
         "icon": "📊",
-        "stage": "Exploratory Analysis",
-        "status": "COMPLETED",
-        "badge_color": "#6C63FF",
+        "stage": "Visualization",
+        "badge_color": "#22D3EE",
     },
     {
         "id": 9,
         "number_str": "Practical 09",
-        "title": "Simple Attack Classifier",
-        "short_title": "Simple Attack Classifier",
-        "one_liner": "Compare Logistic Regression vs Random Forest on natural split and SMOTE-balanced training.",
-        "icon": "🛡️",
+        "title": "Attack Classification Models",
+        "short_title": "Model Training",
+        "one_liner": "Train Random Forest (99.97% accuracy) & Logistic Regression on 298k untouched test records.",
+        "icon": "🎯",
         "stage": "Machine Learning",
-        "status": "COMPLETED",
-        "badge_color": "#39D98A",
+        "badge_color": "#21D98B",
     },
     {
         "id": 10,
         "number_str": "Practical 10",
         "title": "Reusable Log Processing Pipeline",
-        "short_title": "Reusable Log Processing Pipeline",
-        "one_liner": "Execute automated 7-stage CLI & Python pipeline in 108s with 97.8% Parquet compression.",
+        "short_title": "Reusable Pipeline",
+        "one_liner": "Integrated 7-stage automated pipeline; processes 2.06M records in 108s with 97.8% Parquet drop.",
         "icon": "🚀",
-        "stage": "Production Pipeline",
-        "status": "COMPLETED",
-        "badge_color": "#00D9FF",
+        "stage": "Production",
+        "badge_color": "#22D3EE",
     },
 ]

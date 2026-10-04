@@ -21,6 +21,7 @@ Thumbs.db
 # Large raw & intermediate datasets exceeding GitHub's 100MB limit
 # Note: Sample datasets, Parquet files, ML models, and audit reports are preserved
 *.log
+!data/sample_honeypot.log
 Practical 1/data/raw/
 Practical 1/outputs/parsed_logs.csv
 Practical 2/data/processed/structured_access_logs.csv

@@ -1,0 +1,275 @@
+[
+  {
+    "id": 1,
+    "number_str": "Practical 01",
+    "title": "Access Log Data Exploration",
+    "short_title": "Load & Explore Logs",
+    "aim": "To load, inspect, and explore unstructured web honeypot access log data (cj.log), determine its schema, verify encoding, and audit record count integrity.",
+    "input": "Raw honeypot text file (cj.log), 215.40 MB (225,867,389 bytes), 2,062,365 physical lines.",
+    "process": "Streamed file line-by-line via memory-safe generator, handled concatenated '][' lines, deserialized JSON arrays, validated 8 positional attributes, and reconciled physical vs extracted line counts.",
+    "methods_tools": "Python Streaming Generator, Regex Delimiter Splitting (']['), json.loads Deserialization, Accounting Reconciliation Auditing, Matplotlib Visualization.",
+    "result": "2,062,361 extracted records from 2,062,365 physical lines (934 blank, 911 multi-record lines expanded to 1,841). 31 malformed records (99.9985% parsing success). 16,680 unique client IPs across 407 calendar days.",
+    "output_evidence": "exploration_summary.txt, log_structure_report.txt, random_samples.txt, parsed_logs.csv (169 MB).",
+    "screenshots": [
+      {"file": "request_volume_over_time.png", "title": "Request Volume Over Time"},
+      {"file": "top_10_categories.png", "title": "Top 10 Log Categories"},
+      {"file": "top_10_ips.png", "title": "Top 10 Client Source IPs"},
+      {"file": "top_10_requests.png", "title": "Top 10 Requested Resources"}
+    ],
+    "metrics": {
+      "Physical Lines": "2,062,365",
+      "Extracted Records": "2,062,361",
+      "Parsed Successfully": "2,062,330",
+      "Malformed Records": "31",
+      "Success Rate": "99.9985%",
+      "Unique Client IPs": "16,680"
+    }
+  },
+  {
+    "id": 2,
+    "number_str": "Practical 02",
+    "title": "Convert Unstructured Logs into Structured Dataset",
+    "short_title": "Structuring & Canonical Schema",
+    "aim": "To transform unstructured honeypot access logs into a canonical 13-column tabular dataset, enforcing strict data typing and missing value identification.",
+    "input": "2,062,361 extracted log entries from Practical 1.",
+    "process": "Extracted 8 source attributes, synthesized 5 standard web fields (request_type, status_code, resource_requested, bytes_sent, referrer), and enforced a consistent 13-column relational schema.",
+    "methods_tools": "Pandas DataFrame Vectorization, Positional Schema Mapping, Missing Value Quantification, Data Quality Auditing.",
+    "result": "2,062,361 structured rows in 13 canonical columns. Identified 18,433,649 explicit missing values in optional/synthesized HTTP attributes with 100% parsing fidelity.",
+    "output_evidence": "structured_logs.csv, parsing_report.txt, field_mapping_report.txt, data_quality_report.txt.",
+    "screenshots": [
+      {"file": "missing_values.png", "title": "Missing Values Distribution across 13 Attributes"},
+      {"file": "records_over_time.png", "title": "Records Ingestion Over Time"},
+      {"file": "top_10_ips.png", "title": "Top 10 Client Source IPs in Structured Data"},
+      {"file": "top_categories.png", "title": "Category Type Distribution"},
+      {"file": "top_user_agents.png", "title": "Top User Agent Distribution"}
+    ],
+    "metrics": {
+      "Structured Rows": "2,062,361",
+      "Canonical Columns": "13",
+      "Source Attributes": "8",
+      "Synthesized Attributes": "5",
+      "Missing Values Identified": "18,433,649",
+      "Structuring Success": "100%"
+    }
+  },
+  {
+    "id": 3,
+    "number_str": "Practical 03",
+    "title": "Data Cleaning & Preprocessing",
+    "short_title": "Cleaning & Deduplication",
+    "aim": "To clean the structured access logs by removing exact duplicate records, imputing missing values, parsing timestamps, and normalizing URL paths.",
+    "input": "2,062,361 structured records from Practical 2.",
+    "process": "Deduplicated records based on exact row matching, imputed missing categorical values with domain sentinels, parsed timestamps to ISO-8601 UTC, and normalized HTTP URL paths.",
+    "methods_tools": "Pandas drop_duplicates, Domain-Specific Missing Value Imputation, urllib.parse Path Normalization, Datetime Vectorized Parsing.",
+    "result": "570,179 exact duplicate rows purged. Dataset reduced to 1,492,182 clean records. 18,433,649 missing values fully resolved. 0 invalid timestamps.",
+    "output_evidence": "preprocessed_logs.csv, preprocessing_report.txt, ml_verification_report.txt.",
+    "screenshots": [
+      {"file": "confusion_matrix_baseline.png", "title": "Classification Baseline (Raw Data)"},
+      {"file": "confusion_matrix_preprocessed.png", "title": "Classification Post-Preprocessing"}
+    ],
+    "metrics": {
+      "Records Before": "2,062,361",
+      "Duplicates Removed": "570,179",
+      "Preprocessed Working Set": "1,492,182",
+      "Missing Values Resolved": "18,433,649",
+      "Invalid Timestamps": "0",
+      "Reduction Percentage": "27.65%"
+    }
+  },
+  {
+    "id": 4,
+    "number_str": "Practical 04",
+    "title": "Basic Attack Classification",
+    "short_title": "Rule-Based Attack Labeling",
+    "aim": "To label access requests into 6 security classes (Benign vs Attacks) using deterministic regex signatures and temporal rolling windows.",
+    "input": "1,492,182 preprocessed records from Practical 3.",
+    "process": "Applied deterministic regex rules in strict priority (SQLi > Path Traversal > Command Injection > XSS > Brute Force > Benign). Detected brute-force via >=10 login attempts in a 10-minute sliding window per IP.",
+    "methods_tools": "Regular Expression Matching, Temporal Rolling Windows (10-min sliding window), Deterministic Priority Hierarchy, Security Signature Auditing.",
+    "result": "1,487,823 Benign (99.71%) and 4,359 Attacks (0.29%). Attack breakdown: 1,342 Brute Force, 1,098 Path Traversal, 954 XSS, 805 Command Injection, 160 SQLi. 82 brute-force attacking IPs identified.",
+    "output_evidence": "labeled_logs.csv, labeling_report.txt, label_distribution.png.",
+    "screenshots": [
+      {"file": "label_distribution.png", "title": "Label Distribution across 6 Security Classes"}
+    ],
+    "metrics": {
+      "Benign Requests": "1,487,823 (99.71%)",
+      "Total Attack Events": "4,359 (0.29%)",
+      "Brute Force": "1,342",
+      "Path Traversal": "1,098",
+      "Cross-Site Scripting (XSS)": "954",
+      "Command Injection": "805",
+      "SQL Injection (SQLi)": "160",
+      "Brute Force Attack IPs": "82"
+    }
+  },
+  {
+    "id": 5,
+    "number_str": "Practical 05",
+    "title": "Feature Engineering & Anomaly Detection",
+    "short_title": "Feature Engineering & Isolation Forest",
+    "aim": "To engineer domain-specific, automated (Featuretools), and time-series (tsfresh) features, rank them via feature selection, and perform unsupervised anomaly detection.",
+    "input": "1,492,182 labeled records from Practical 4.",
+    "process": "Extracted request behavior, inter-request intervals, rolling rates, URL entropy, and payload features. Applied Featuretools DFS aggregations and tsfresh time-series stats. Trained Isolation Forest for unsupervised anomaly detection without target leakage.",
+    "methods_tools": "Shannon Entropy Calculation, Vectorized Rolling Rates, Featuretools Deep Feature Synthesis, tsfresh Statistical Extraction, RandomForest Top 20 Feature Importance, Isolation Forest (contamination=auto).",
+    "result": "66 total features engineered. Isolation Forest scored all records: 98.0% Normal, 2.0% Anomalous. Anomaly detection independently identified abnormal request densities without label leakage.",
+    "output_evidence": "feature_engineered_logs.csv, feature_importance.csv, feature_engineering_report.txt, tool_comparison_report.txt.",
+    "screenshots": [
+      {"file": "1_requests_per_ip_distribution.png", "title": "Requests Per IP Distribution"},
+      {"file": "2_inter_request_time_distribution.png", "title": "Inter-Request Time Distribution"},
+      {"file": "3_url_entropy_distribution.png", "title": "URL Shannon Entropy Distribution"},
+      {"file": "4_bot_scanner_browser_distribution.png", "title": "Bot & Scanner Indicator Distribution"},
+      {"file": "4_status_404_ratio_distribution.png", "title": "Status 404 Ratio Distribution"},
+      {"file": "5_top20_feature_importance.png", "title": "Top 20 Features by Discriminative Importance"},
+      {"file": "5_user_agent_category_distribution.png", "title": "User Agent Category Breakdown"},
+      {"file": "6_top10_feature_importance.png", "title": "Top 10 Feature Importance"},
+      {"file": "6_tsfresh_feature_distribution.png", "title": "tsfresh Statistical Feature Distribution"},
+      {"file": "7_anomaly_score_distribution.png", "title": "Isolation Forest Anomaly Score Distribution"}
+    ],
+    "metrics": {
+      "Total Features Engineered": "66",
+      "Feature Groups": "Domain, Featuretools, tsfresh",
+      "Isolation Forest Model": "Unsupervised IsolationForest",
+      "Normal Traffic": "98.0%",
+      "Anomalous Traffic": "2.0%",
+      "Top Feature": "requests_per_ip / inter_request_time"
+    }
+  },
+  {
+    "id": 6,
+    "number_str": "Practical 06",
+    "title": "Handling Imbalanced Dataset",
+    "short_title": "Dataset Balancing & SMOTE",
+    "aim": "To resolve extreme class imbalance (9,298.89:1) between benign traffic and rare attack classes through sampling strategies.",
+    "input": "1,492,182 labeled and feature-engineered records.",
+    "process": "Preserved 20% stratified test set untouched (298,437 records). Compared Random Undersampling, Random Oversampling, and SMOTE on the training split to synthesize minority attack vectors.",
+    "methods_tools": "Stratified Train-Test Split (80/20), Random Undersampling, Random Oversampling, SMOTE (Synthetic Minority Over-sampling Technique), Class Distribution Auditing.",
+    "result": "Evaluated 3 resampling paradigms. Produced a balanced training dataset of 60,000 records (10,000 per class across 6 classes) while preserving an untouched realistic test set of 298,437 records.",
+    "output_evidence": "balanced_training_data.csv, balancing_report.txt, balancing_methods_comparison.png.",
+    "screenshots": [
+      {"file": "original_class_distribution.png", "title": "Original Extreme Class Imbalance"},
+      {"file": "balancing_methods_comparison.png", "title": "Balancing Methods Comparison"},
+      {"file": "undersampling_distribution.png", "title": "Random Undersampling Distribution"},
+      {"file": "random_oversampling_distribution.png", "title": "Random Oversampling Distribution"},
+      {"file": "smote_distribution.png", "title": "SMOTE Resampled Distribution"},
+      {"file": "final_balanced_distribution.png", "title": "Final Balanced Training Set (60,000 Records)"},
+      {"file": "training_class_distribution.png", "title": "Training vs Test Class Distribution"}
+    ],
+    "metrics": {
+      "Original Imbalance Ratio": "9,298.89 : 1",
+      "Untouched Test Split": "298,437 records (20%)",
+      "Balanced Training Set": "60,000 records",
+      "Records Per Balanced Class": "10,000",
+      "Evaluated Techniques": "Undersampling, Oversampling, SMOTE"
+    }
+  },
+  {
+    "id": 7,
+    "number_str": "Practical 07",
+    "title": "Data Wrangling & Aggregation",
+    "short_title": "Traffic Slicing & Security Pivoting",
+    "aim": "To clean, reshape, filter, and aggregate multi-dimensional security telemetry for granular threat profiling.",
+    "input": "1,492,182 preprocessed access records.",
+    "process": "Grouped traffic by client IP, analyzed hourly and daily attack frequencies, computed bot vs non-bot ratios, pivoted request types against attack labels, and identified high-risk IP subnets.",
+    "methods_tools": "Pandas groupby, Pivot Tables, Temporal Resampling (Hourly / Daily), Multi-Level Indexing, Aggregation Profiling.",
+    "result": "Aggregated 1,492,182 records into 59,497 wrangled IP security profiles. Pinpointed top persistent attacker IP 42.106.39.186 with high SQLi density. Quantified diurnal traffic patterns.",
+    "output_evidence": "wrangled_security_summary.csv, wrangling_report.txt, data_inspection_report.txt.",
+    "screenshots": [
+      {"file": "1_top_attack_ips.png", "title": "Top Malicious Attacking IPs"},
+      {"file": "2_hourly_traffic.png", "title": "Hourly Request Volume Distribution"},
+      {"file": "3_daily_attack_traffic.png", "title": "Daily Attack Activity Timeline"},
+      {"file": "4_attack_type_distribution.png", "title": "Attack Type Proportions"},
+      {"file": "5_request_type_label_heatmap.png", "title": "HTTP Method vs Attack Label Heatmap"},
+      {"file": "6_bot_vs_nonbot.png", "title": "Automated Bot vs Human Traffic Breakdown"},
+      {"file": "7_internal_vs_external.png", "title": "Internal vs External Traffic Origin"}
+    ],
+    "metrics": {
+      "Wrangled IP Summary Rows": "59,497",
+      "Top Malicious IP": "42.106.39.186",
+      "Analyzed Dimensions": "IP, Hour, Day, Method, Bot Signal",
+      "Diurnal Periodicity": "Peak traffic 08:00 - 18:00 UTC"
+    }
+  },
+  {
+    "id": 8,
+    "number_str": "Practical 08",
+    "title": "Exploratory Data Analysis (EDA)",
+    "short_title": "EDA & Telemetry Visualizations",
+    "aim": "To perform comprehensive statistical and behavioral exploratory data analysis across all traffic dimensions.",
+    "input": "1,492,182 preprocessed and feature-engineered records.",
+    "process": "Generated 15 statistical plots covering univariate distributions, bivariate cross-tabulations, status code groupings, lexical URL and payload lengths, inter-arrival intervals, and feature correlations.",
+    "methods_tools": "Seaborn & Matplotlib Visualization, Pearson Correlation Heatmap, Kernel Density Estimation (KDE), Logarithmic Frequency Scaling.",
+    "result": "Identified strong correlation between high URL entropy and SQLi/Command Injection attacks. Discovered distinct inter-request delta clustering for automated scanners vs human traffic.",
+    "output_evidence": "15 PNG visualization plots, eda_summary.txt, visualization_report.txt.",
+    "screenshots": [
+      {"file": "01_requests_per_hour.png", "title": "Requests Per Hour Distribution"},
+      {"file": "02_top10_attacking_ips.png", "title": "Top 10 Attacking Source IPs"},
+      {"file": "03_attack_categories_over_time.png", "title": "Attack Categories Over Time"},
+      {"file": "04_status_code_distribution.png", "title": "HTTP Status Code Frequency"},
+      {"file": "05_status_code_group_distribution.png", "title": "Status Code Group (2xx, 3xx, 4xx, 5xx)"},
+      {"file": "06_ip_vs_request_type_heatmap.png", "title": "Source IP vs Request Type Heatmap"},
+      {"file": "07_attack_category_distribution.png", "title": "Attack Category Proportions"},
+      {"file": "08_request_type_distribution.png", "title": "HTTP Request Method Distribution"},
+      {"file": "09_bot_vs_nonbot.png", "title": "Bot vs Non-Bot Ratio"},
+      {"file": "10_internal_vs_external.png", "title": "Internal vs External IP Distribution"},
+      {"file": "11_url_length_distribution.png", "title": "URL Length Distribution"},
+      {"file": "12_payload_length_distribution.png", "title": "Payload Length Distribution"},
+      {"file": "13_requests_per_ip_distribution.png", "title": "Requests Per IP Density"},
+      {"file": "14_inter_request_time_distribution.png", "title": "Inter-Request Time Interval Density"},
+      {"file": "15_feature_correlation_heatmap.png", "title": "Engineered Feature Correlation Heatmap"}
+    ],
+    "metrics": {
+      "Visualized Artifacts": "15 Distinct Plots",
+      "Correlation Matrix Dimensions": "Engineered Numerical Features",
+      "Key Correlation": "URL entropy correlates with injection attacks (r > 0.68)",
+      "Timing Signature": "Scanners exhibit low inter-arrival delta (<0.05s)"
+    }
+  },
+  {
+    "id": 9,
+    "number_str": "Practical 09",
+    "title": "Attack Classification Models",
+    "short_title": "Model Training & Evaluation",
+    "aim": "To train and compare multi-class machine learning classifiers (Random Forest vs Logistic Regression) for automated web attack detection.",
+    "input": "60,000 balanced training records and 298,437 untouched test records.",
+    "process": "Trained Random Forest (100 estimators, max depth 20) and Logistic Regression on balanced features. Evaluated on the realistic, untouched 298,437 test dataset. Computed precision, recall, F1, and confusion matrices.",
+    "methods_tools": "RandomForestClassifier, LogisticRegression, Scikit-Learn Classification Metrics, Stratified K-Fold Validation, Confusion Matrix Plotting.",
+    "result": "Random Forest achieved 99.9705% overall test accuracy, 0.952579 Macro F1, and 0.999710 Weighted F1. Logistic Regression reached 97.0744% accuracy with 0.451820 Macro F1 due to non-linear feature interactions.",
+    "output_evidence": "classifier_report.txt, random_forest_report.txt, logistic_regression_report.txt, model_accuracy_comparison.png.",
+    "screenshots": [
+      {"file": "class_distribution.png", "title": "Test Set Class Distribution"},
+      {"file": "model_accuracy_comparison.png", "title": "Random Forest vs Logistic Regression Accuracy"},
+      {"file": "random_forest_confusion_matrix.png", "title": "Random Forest Confusion Matrix (298,437 Test Records)"},
+      {"file": "logistic_regression_confusion_matrix.png", "title": "Logistic Regression Confusion Matrix"},
+      {"file": "random_forest_top20_features.png", "title": "Random Forest Top 20 Discriminative Features"}
+    ],
+    "metrics": {
+      "Test Set Records": "298,437 (untouched)",
+      "Random Forest Accuracy": "99.9705%",
+      "Random Forest Macro F1": "0.952579",
+      "Random Forest Weighted F1": "0.999710",
+      "Logistic Regression Accuracy": "97.0744%",
+      "Logistic Regression Macro F1": "0.451820",
+      "Best Model": "Random Forest Classifier"
+    }
+  },
+  {
+    "id": 10,
+    "number_str": "Practical 10",
+    "title": "Reusable Log Processing Pipeline",
+    "short_title": "Production Reusable Pipeline",
+    "aim": "To integrate all log engineering phases into a production-grade, automated, modular, and auditable end-to-end data pipeline.",
+    "input": "Raw honeypot JSON access log (cj.log), 215.40 MB, 2,061,431 records.",
+    "process": "Executed 7 sequential stages: Streaming Load -> Positional Parsing -> Preprocessing/Deduplication -> Deterministic Labeling -> 26-Feature Engineering -> Automated Validation -> CSV & Parquet Serialization.",
+    "methods_tools": "Object-Oriented Pipeline Architecture (LogProcessingPipeline), PyArrow Parquet Compression, 14 Integrity Validation Assertions, Structured Execution Profiling.",
+    "result": "Successfully processed 2,061,431 raw records in 108.67 seconds. Parquet serialization reduced storage footprint by 97.8% (415 MB CSV to 9.1 MB Parquet). All 14 automated validation checks passed with 100% success.",
+    "output_evidence": "pipeline_summary.json, pipeline_report.txt, feature_engineered_logs.parquet (9.1 MB), feature_engineered_logs.csv (415 MB).",
+    "screenshots": [],
+    "metrics": {
+      "Pipeline Status": "SUCCESS (14/14 checks passed)",
+      "Total Execution Time": "108.67 seconds",
+      "Processed Records": "1,492,047",
+      "Engineered Features": "26 Canonical Features",
+      "Parquet Compression Drop": "97.8% (415 MB -> 9.1 MB)",
+      "Throughput": "18,970 records / sec"
+    }
+  }
+]

@@ -1,112 +1,125 @@
-# Rox — Log Intelligence Platform
+# ROX — Log Intelligence Platform
 
 [![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://streamlit.io/cloud)
-[![Python 3.10+](https://img.shields.io/badge/python-3.10%20%7C%203.11%20%7C%203.12%20%7C%203.13-blue.svg)](https://www.python.org/)
-[![Scikit-Learn](https://img.shields.io/badge/scikit--learn-1.3+-orange.svg)](https://scikit-learn.org/)
-[![Apache Parquet](https://img.shields.io/badge/Apache-Parquet-blueviolet.svg)](https://parquet.apache.org/)
-[![Pipeline Engine](https://img.shields.io/badge/Pipeline-Production%20Ready-success.svg)]()
+[![Python 3.10+](https://img.shields.io/badge/python-3.10%20%7C%203.11%20%7C%203.12-blue.svg)](https://www.python.org/)
+[![Pipeline Status](https://img.shields.io/badge/Pipeline-Ready-success.svg)]()
 
-A modern, dark-themed **Log Analysis & Security Intelligence Platform** featuring an integrated AI assistant named **Rox**.
+ROX is a production-grade, dark-themed **Log Intelligence Platform** and autonomous security assistant. It transforms raw server access telemetry into structured, labeled, feature-engineered datasets and delivers instant forensic insights.
 
-The platform is designed around two core functions:
-1. **Practicals Explorer**: An interactive, visual product-style interface presenting what was actually implemented across Practical 1 to 10 using empirical project outputs, charts, and metrics.
-2. **Rox Live Log Analysis Assistant**: An interactive log processing engine where users can upload new server access logs (`.log`, `.txt`, `.csv`) and execute the automated 7-stage pipeline to classify threats, detect suspicious behavior, inspect features, chat with Rox, and download processed datasets.
-
----
-
-## 🌟 Platform Capabilities
-
-- **Overview Dashboard**: High-level cybersecurity intelligence overview with real project statistics (2.06M raw records, 570k deduplicated entries, 6 multi-class threat categories, 66 numerical features).
-- **Practicals Explorer (1 to 10)**: 10 interactive cards with subtle hover effects and detailed product views:
-  - **Aim**: Target objective of the data science operation.
-  - **Input / Dataset**: Source file, record count, attributes, and uncleaned baseline state.
-  - **Process**: Visual stage flow from raw telemetry to ML-ready features.
-  - **Techniques & Tools**: Strictly the tools actually used (Python, Pandas, Scikit-learn, imbalanced-learn, Matplotlib, Seaborn, Plotly, tsfresh, Featuretools, PyArrow).
-  - **Algorithm / Method**: Specific algorithms (e.g. streaming generators, regex signatures, SMOTE, Random Forest).
-  - **Observation**: Empirical results extracted directly from project outputs.
-  - **Output**: Actual generated plots, technical reports, and CSV samples.
-- **Rox — Live Log Analysis Assistant**:
-  - Upload `.log`, `.txt`, or `.csv` files or test using the one-click demo honeypot sample.
-  - Executes the automated Practical 10 pipeline: `Load → Parse → Structure → Preprocess → Label → Feature Engineer → Analyze → Export`.
-  - Displays traffic classifications (benign, brute force, sqli, path traversal, xss, command injection), suspicious IPs, burst traffic, and high-entropy URLs.
-  - Features an interactive conversational assistant to ask natural forensic questions (e.g., *"What attacks were detected?"*, *"Which IP generated the most suspicious requests?"*).
-  - One-click downloads for processed CSV, Parquet, and JSON analysis summaries.
-- **Reusable Pipeline View**: Step-by-step breakdown of the 8 automated production stages (01 Load, 02 Parse, 03 Structure, 04 Preprocess, 05 Label, 06 Engineer Features, 07 Validate, 08 Export) with timing metrics.
-- **Security Analytics**: Cross-telemetry exploratory data analysis, 15 security visualization figures, Pearson feature correlation heatmaps, class balancing dynamics (SMOTE vs RUS/ROS), and ML classifier benchmarks.
-
----
-
-## 🛠️ Technology Stack
-
-- **Core Framework**: Streamlit (with custom dark cybersecurity CSS)
-- **Data Engineering**: Pandas, NumPy
-- **High-Performance Columnar Storage**: Apache Arrow / PyArrow (Snappy-compressed Parquet)
-- **Machine Learning**: Scikit-Learn (Random Forest: 99.97% Acc, 95.26% Macro F1; Logistic Regression baseline)
-- **Dataset Balancing**: Imbalanced-Learn (SMOTE 60k balanced training partition)
-- **Feature Extraction**: Featuretools, tsfresh, Shannon entropy
-- **Visual Analytics**: Matplotlib, Seaborn, Plotly Express
+```
+                    ROX
+                     │
+        ┌────────────┴────────────┐
+        │                         │
+ PRACTICAL STORY             LIVE ANALYZER
+        │                         │
+  Actual P1 → P10             Upload Log
+  screenshots                     │
+  actual outputs                  ▼
+  actual results               LOAD
+                                ↓
+                              PARSE
+                                ↓
+                             CLEAN
+                                ↓
+                             LABEL
+                                ↓
+                       FEATURE ENGINEERING
+                       ├─ Domain Features
+                       ├─ Featuretools
+                       └─ tsfresh
+                                ↓
+                        Anomaly Detection
+                                ↓
+                         Security Results
+                                ↓
+                           Ask ROX
+```
 
 ---
 
-## 🚀 Quickstart & Local Execution
+## 🚀 Quickstart (Local Execution)
 
-1. **Clone the Repository:**
+1. **Clone the repository:**
    ```bash
    git clone https://github.com/rezabadi31/pds.git
    cd pds
    ```
 
-2. **Install Dependencies:**
+2. **Install dependencies:**
    ```bash
    pip install -r requirements.txt
    ```
 
-3. **Launch the Platform:**
+3. **Launch the application:**
    ```bash
    streamlit run app.py
    ```
 
-The application opens at `http://localhost:8501`.
+---
+
+## ☁️ Streamlit Community Cloud Deployment
+
+ROX is fully configured for zero-configuration deployment to **Streamlit Community Cloud**:
+
+1. Push this repository to GitHub.
+2. Log into [share.streamlit.io](https://share.streamlit.io/).
+3. Click **New app**.
+4. Select your repository, branch (`main`), and set **Main file path** to:
+   ```text
+   app.py
+   ```
+5. Click **Deploy**.
+
+> **Note**: ROX operates 100% deterministically and does not require paid LLM API keys. All asset references and pipeline modules use relative paths that work automatically in the cloud environment.
 
 ---
 
-## 📁 Project Architecture
+## 📂 Project Architecture
 
 ```text
 pds/
-├── app.py                      # Master Streamlit entry point
-├── config.py                   # Central dark theme tokens, paths, baseline metrics
-├── requirements.txt            # Unified dependencies
-├── README.md                   # Platform documentation
-│
-├── assets/
-│   └── dark_theme.css          # Dark cybersecurity stylesheet
+├── app.py                     # Master Streamlit entry point
+├── requirements.txt           # Cloud-compatible dependency manifest
+├── README.md                  # Project documentation & deployment guide
+├── config.py                  # Theme tokens, baseline metrics & relative paths
 │
 ├── src/
-│   ├── pipeline/
-│   │   └── pipeline_runner.py  # Rox live pipeline executor & chat logic
-│   └── gui/
-│       ├── overview.py         # Platform overview & KPI hero banner
-│       ├── practicals.py       # 10 practical cards & detailed product views
-│       ├── rox.py              # Rox assistant & live log analyzer
-│       ├── pipeline_view.py    # Interactive 8-stage pipeline visualizer
-│       ├── analytics.py        # Deep telemetry & model benchmarks
-│       └── charts.py           # Dark-themed Plotly charts
+│   ├── pipeline/              # Reusable data engineering pipeline
+│   │   ├── loader.py          # Multi-format log loader (.log, .txt, .csv, .json)
+│   │   ├── parser.py          # Schema parsing & canonical harmonization
+│   │   ├── preprocessing.py   # Cleaning, normalization & deduplication
+│   │   ├── labeling.py        # Practical 04 deterministic attack attribution
+│   │   ├── feature_engineering.py # Domain, Featuretools & tsfresh features
+│   │   ├── anomaly_detection.py   # Practical 05 Isolation Forest detector
+│   │   ├── pipeline.py        # Master pipeline coordinator & offline Q&A
+│   │   └── pipeline_runner.py # Backward-compatible adapter
+│   │
+│   └── gui/                   # Dark cybersecurity UI views
+│       ├── overview.py        # Clean landing screen & quick actions
+│       ├── rox.py             # Live Analyzer workspace, chat & downloads
+│       ├── practicals.py      # Practical Story (P01-P10) cards & evidence
+│       ├── pipeline_view.py   # Reusable pipeline flow & 14 verified checks
+│       └── charts.py          # Clean Plotly dark charts
 │
-├── utils/
-│   ├── practicals_data.py      # Verified practical metadata & 10-stage facts
-│   └── data_loader.py          # Memory-safe cached loaders (previews & plot locator)
+├── assets/
+│   ├── dark_theme.css         # Dark navy & cyan design stylesheet
+│   └── practicals/            # 51 generated plots from Practicals 01 to 09
 │
-├── data/
-│   └── sample_honeypot.log     # Demo honeypot sample for Rox testing
+├── metadata/
+│   └── practicals.json        # Verified empirical metrics & practical summaries
 │
-└── Practical 1 to 10/          # Source practical implementations, models & outputs
+└── data/
+    └── sample_honeypot.log    # Verified sample honeypot access log for testing
 ```
 
 ---
 
-## 🛡️ Empirical Integrity Guarantee
+## 🛡️ Core Capabilities
 
-- **Zero Fabricated Results**: Every metric, record count, accuracy score, and distribution is read directly from verified output files and logs in `Practical 1` to `Practical 10`.
-- **Dual Experiment Separation**: Experiment A (natural imbalanced split) and Experiment B (SMOTE-balanced train evaluated on untouched test) are preserved strictly separate.
-- **Memory Safety**: Large datasets (multi-hundred MB CSVs) are previewed using cached head-sampling (`@st.cache_data`) to prevent RAM exhaustion.
+- **ROX Live Analyzer**: Upload raw access logs (`.log`, `.txt`, `.csv`, `.json`) or test with the built-in demo sample. Executes real pipeline stages: `Load → Parse → Structure → Preprocess → Label → Feature Engineer → Anomaly Detection → Export`.
+- **Attack Classification**: Deterministic attribution across 6 security classes (`benign`, `brute_force`, `path_traversal`, `xss`, `command_injection`, `sqli`).
+- **Feature Engineering**: Generates request behavioral rates, inter-arrival times, URL Shannon entropy, Featuretools relational aggregations, and tsfresh time-series metrics.
+- **Unsupervised Anomaly Detection**: Isolation Forest scoring (`Normal` vs `Anomalous`) evaluated independently of rule-based attacks.
+- **Ask ROX**: 100% offline, fact-grounded forensic Q&A interface grounded strictly in the processed telemetry.
+- **Practical Story (P01 → P10)**: 10 compact cards detailing AIM, INPUT, PROCESS, METHODS/TOOLS, RESULTS, and 51 actual generated screenshot artifacts.

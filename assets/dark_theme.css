@@ -1,388 +1,327 @@
 /* ==========================================================================
-   ROX SECURITY INTELLIGENCE PLATFORM — DARK CYBERSECURITY STYLESHEET
-   Clean, modern, product-grade dark UI with neon cyber accents & rounded cards
+   ROX LOG INTELLIGENCE PLATFORM — DARK THEME STYLESHEET
+   Clean, minimal, professional dark UI with subtle cyan/blue accents
    ========================================================================== */
 
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
 
 :root {
-    --bg-main: #080B12;
-    --bg-secondary: #10151F;
-    --card-bg: #151B26;
-    --card-elevated: #1B2330;
-    --text-primary: #F5F7FA;
-    --text-secondary: #A7B0BE;
-    --text-muted: #64748B;
-    --accent-purple: #6C63FF;
-    --accent-cyan: #00D9FF;
-    --color-success: #39D98A;
-    --color-warning: #FFB547;
-    --color-danger: #FF5C7A;
-    --border-subtle: rgba(255, 255, 255, 0.08);
-    --border-accent: rgba(108, 99, 255, 0.35);
-    --shadow-card: 0 4px 20px rgba(0, 0, 0, 0.4);
-    --shadow-glow: 0 0 15px rgba(108, 99, 255, 0.25);
+    --bg-main: #060912;
+    --bg-sidebar: #080D17;
+    --card-main: #101827;
+    --card-elevated: #151E2E;
+    --border-subtle: rgba(120, 180, 255, 0.12);
+    --border-hover: rgba(34, 211, 238, 0.3);
+    
+    --text-primary: #F4F7FB;
+    --text-secondary: #8E9BAD;
+    --text-muted: #5A6678;
+
+    --accent-cyan: #22D3EE;
+    --accent-blue: #1687FF;
+    --accent-green: #21D98B;
+    --accent-red: #FF5577;
+
     --radius-sm: 8px;
     --radius-md: 12px;
     --radius-lg: 16px;
+    --radius-xl: 20px;
 }
 
-/* Global Container Tweaks */
+/* Base Body & Container */
+html, body, [data-testid="stAppViewContainer"] {
+    background-color: var(--bg-main) !important;
+    color: var(--text-primary) !important;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+}
+
 .main .block-container {
-    padding-top: 1.5rem;
-    padding-bottom: 3rem;
-    padding-left: 2rem;
-    padding-right: 2rem;
-    max-width: 1440px;
+    padding-top: 1.2rem !important;
+    padding-bottom: 2rem !important;
+    padding-left: 2.5rem !important;
+    padding-right: 2.5rem !important;
+    max-width: 1400px;
     background-color: var(--bg-main);
 }
 
-body, [data-testid="stAppViewContainer"] {
-    background-color: var(--bg-main) !important;
-    color: var(--text-primary) !important;
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
-}
-
-/* Sidebar Customization */
+/* Sidebar */
 [data-testid="stSidebar"] {
-    background-color: var(--bg-secondary) !important;
+    background-color: var(--bg-sidebar) !important;
     border-right: 1px solid var(--border-subtle) !important;
 }
 
-[data-testid="stSidebar"] [data-testid="stMarkdownContainer"] p {
-    color: var(--text-secondary);
+[data-testid="stSidebar"] > div:first-child {
+    padding-top: 1.2rem;
+    padding-left: 1.2rem;
+    padding-right: 1.2rem;
 }
 
-/* Product Hero Banner */
-.product-hero {
-    background: linear-gradient(135deg, #10151F 0%, #151B26 50%, #1B1E30 100%);
-    border: 1px solid var(--border-subtle);
-    border-radius: var(--radius-lg);
-    padding: 2.2rem 2.5rem;
-    margin-bottom: 2rem;
-    position: relative;
-    overflow: hidden;
-    box-shadow: var(--shadow-card);
-}
-
-.product-hero::after {
-    content: "";
-    position: absolute;
-    top: -80px;
-    right: -80px;
-    width: 280px;
-    height: 280px;
-    background: radial-gradient(circle, rgba(108, 99, 255, 0.18) 0%, rgba(0, 217, 255, 0) 70%);
-    border-radius: 50%;
-    pointer-events: none;
-}
-
-.product-hero-eyebrow {
-    font-size: 0.8rem;
-    font-weight: 700;
-    letter-spacing: 0.15em;
-    text-transform: uppercase;
-    color: var(--accent-cyan);
-    margin-bottom: 0.5rem;
+/* Compact Top Bar */
+.rox-topbar {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
-}
-
-.product-hero-title {
-    font-size: 2.3rem;
-    font-weight: 800;
-    color: #FFFFFF;
-    line-height: 1.2;
-    margin: 0;
-    letter-spacing: -0.02em;
-}
-
-.product-hero-subtitle {
-    font-size: 1.05rem;
-    color: var(--text-secondary);
-    margin-top: 0.6rem;
-    margin-bottom: 1.4rem;
-    font-weight: 400;
-    max-width: 800px;
-    line-height: 1.5;
-}
-
-/* Cyber KPI Metric Cards */
-.kpi-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
-    gap: 1.1rem;
-    margin-bottom: 2.2rem;
-}
-
-.kpi-card {
-    background: var(--card-bg);
+    justify-content: space-between;
+    padding: 0.6rem 1.2rem;
+    background-color: var(--card-main);
     border: 1px solid var(--border-subtle);
     border-radius: var(--radius-md);
-    padding: 1.25rem 1.4rem;
-    box-shadow: var(--shadow-card);
-    transition: all 0.2s ease-in-out;
-    position: relative;
-    overflow: hidden;
+    margin-bottom: 1.5rem;
 }
 
-.kpi-card:hover {
-    transform: translateY(-2px);
-    border-color: var(--border-accent);
-    box-shadow: var(--shadow-glow);
-    background: var(--card-elevated);
+.rox-topbar-left {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
 }
 
-.kpi-card::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 4px;
-    height: 100%;
-    background: var(--accent-purple);
+.rox-topbar-brand {
+    font-size: 1.15rem;
+    font-weight: 800;
+    color: var(--text-primary);
+    letter-spacing: -0.01em;
 }
 
-.kpi-label {
+.rox-topbar-subtitle {
     font-size: 0.75rem;
+    color: var(--accent-cyan);
     font-weight: 600;
     text-transform: uppercase;
-    letter-spacing: 0.08em;
-    color: var(--text-secondary);
-    margin-bottom: 0.4rem;
+    letter-spacing: 0.05em;
 }
 
-.kpi-value {
-    font-size: 1.75rem;
-    font-weight: 800;
-    color: #FFFFFF;
-    line-height: 1.1;
-    margin-bottom: 0.35rem;
-    font-family: 'JetBrains Mono', monospace;
-}
-
-.kpi-sub {
-    font-size: 0.8rem;
-    color: var(--text-muted);
-}
-
-/* Product Card Grid */
-.product-card-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-    gap: 1.25rem;
-    margin-top: 1rem;
-    margin-bottom: 2.5rem;
-}
-
-.product-card {
-    background: var(--card-bg);
-    border: 1px solid var(--border-subtle);
-    border-radius: var(--radius-md);
-    padding: 1.5rem;
-    box-shadow: var(--shadow-card);
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.product-card:hover {
-    transform: translateY(-3px);
-    border-color: var(--border-accent);
-    background: var(--card-elevated);
-    box-shadow: var(--shadow-glow);
-}
-
-.product-card-top {
-    display: flex;
-    justify-content: space-between;
+.rox-badge-status {
+    display: inline-flex;
     align-items: center;
-    margin-bottom: 0.85rem;
-}
-
-.product-pill {
-    font-size: 0.72rem;
-    font-weight: 700;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--accent-cyan);
-    background: rgba(0, 217, 255, 0.1);
-    border: 1px solid rgba(0, 217, 255, 0.25);
-    padding: 0.25rem 0.65rem;
-    border-radius: 4px;
-}
-
-.status-badge-completed {
-    font-size: 0.7rem;
-    font-weight: 700;
-    color: var(--color-success);
-    background: rgba(57, 217, 138, 0.1);
-    border: 1px solid rgba(57, 217, 138, 0.25);
-    padding: 0.2rem 0.5rem;
-    border-radius: 4px;
-}
-
-.product-card-title {
-    font-size: 1.18rem;
-    font-weight: 700;
-    color: #FFFFFF;
-    margin-top: 0.2rem;
-    margin-bottom: 0.5rem;
-    line-height: 1.35;
-}
-
-.product-card-desc {
-    font-size: 0.88rem;
-    color: var(--text-secondary);
-    line-height: 1.5;
-    margin-bottom: 1.25rem;
-    flex-grow: 1;
-}
-
-/* Detail Section Containers */
-.detail-section {
-    background: var(--card-bg);
-    border: 1px solid var(--border-subtle);
-    border-radius: var(--radius-md);
-    padding: 1.6rem 2rem;
-    margin-bottom: 1.5rem;
-    box-shadow: var(--shadow-card);
-}
-
-.detail-section-title {
-    font-size: 1.1rem;
-    font-weight: 700;
-    color: #FFFFFF;
-    letter-spacing: 0.04em;
-    margin-bottom: 1.1rem;
-    display: flex;
-    align-items: center;
-    gap: 0.6rem;
-    border-bottom: 1px solid var(--border-subtle);
-    padding-bottom: 0.75rem;
-}
-
-.detail-badge-pill {
-    background: rgba(108, 99, 255, 0.15);
-    color: var(--accent-purple);
+    gap: 0.4rem;
     font-size: 0.75rem;
-    font-weight: 700;
-    padding: 0.2rem 0.6rem;
-    border-radius: 4px;
-    border: 1px solid rgba(108, 99, 255, 0.3);
+    font-weight: 600;
+    color: var(--accent-green);
+    background: rgba(33, 217, 139, 0.1);
+    border: 1px solid rgba(33, 217, 139, 0.25);
+    padding: 0.25rem 0.65rem;
+    border-radius: 9999px;
 }
 
-/* Rox Chat & Assistant Interface */
-.rox-header-card {
-    background: linear-gradient(135deg, #151B26 0%, #1A2234 100%);
-    border: 1px solid rgba(108, 99, 255, 0.35);
+/* Rounded Cards */
+.rox-card {
+    background-color: var(--card-main);
+    border: 1px solid var(--border-subtle);
     border-radius: var(--radius-lg);
-    padding: 1.8rem 2.2rem;
-    margin-bottom: 1.8rem;
-    display: flex;
-    align-items: center;
-    gap: 1.5rem;
-    box-shadow: var(--shadow-glow);
+    padding: 1.75rem;
+    margin-bottom: 1.25rem;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
-.rox-avatar-circle {
-    width: 68px;
-    height: 68px;
+.rox-card:hover {
+    border-color: var(--border-hover);
+}
+
+.rox-card-elevated {
+    background-color: var(--card-elevated);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-lg);
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+}
+
+/* Empty State / Welcome Screen Card */
+.rox-welcome-card {
+    background-color: var(--card-main);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-xl);
+    padding: 3rem 2.5rem;
+    text-align: center;
+    max-width: 820px;
+    margin: 1.5rem auto 2rem auto;
+}
+
+.rox-welcome-icon {
+    width: 64px;
+    height: 64px;
+    margin: 0 auto 1.2rem auto;
     border-radius: 50%;
-    background: linear-gradient(135deg, #6C63FF 0%, #00D9FF 100%);
+    background: rgba(34, 211, 238, 0.08);
+    border: 1px solid rgba(34, 211, 238, 0.25);
     display: flex;
     align-items: center;
     justify-content: center;
+    font-size: 2rem;
+}
+
+.rox-welcome-title {
     font-size: 2.2rem;
-    box-shadow: 0 0 20px rgba(108, 99, 255, 0.5);
-    flex-shrink: 0;
-}
-
-.rox-bubble {
-    background: #1A2234;
-    border: 1px solid var(--border-accent);
-    border-radius: 12px 12px 12px 2px;
-    padding: 1.1rem 1.4rem;
+    font-weight: 800;
     color: var(--text-primary);
-    line-height: 1.6;
-    margin-bottom: 1rem;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    margin-bottom: 0.3rem;
+    letter-spacing: -0.02em;
 }
 
-.user-bubble {
-    background: #252840;
-    border: 1px solid rgba(108, 99, 255, 0.4);
-    border-radius: 12px 12px 2px 12px;
-    padding: 0.9rem 1.2rem;
-    color: #FFFFFF;
-    line-height: 1.5;
+.rox-welcome-tagline {
+    font-size: 1.15rem;
+    font-weight: 500;
+    color: var(--accent-cyan);
     margin-bottom: 1rem;
-    margin-left: auto;
-    max-width: 80%;
 }
 
-.quick-chip {
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid var(--border-subtle);
-    border-radius: 20px;
-    padding: 0.35rem 0.85rem;
-    font-size: 0.82rem;
+.rox-welcome-desc {
+    font-size: 0.95rem;
     color: var(--text-secondary);
-    cursor: pointer;
-    transition: all 0.15s ease;
+    line-height: 1.6;
+    max-width: 640px;
+    margin: 0 auto 1.8rem auto;
+}
+
+/* KPI Metric Cards Grid */
+.rox-kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.rox-kpi-card {
+    background-color: var(--card-main);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-md);
+    padding: 1.2rem 1.4rem;
+    transition: transform 0.15s ease;
+}
+
+.rox-kpi-card:hover {
+    border-color: var(--border-hover);
+    transform: translateY(-2px);
+}
+
+.rox-kpi-label {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 0.4rem;
+}
+
+.rox-kpi-value {
+    font-size: 1.9rem;
+    font-weight: 800;
+    color: var(--text-primary);
+    line-height: 1.1;
+    font-family: 'JetBrains Mono', monospace;
+}
+
+.rox-kpi-sub {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    margin-top: 0.35rem;
+}
+
+/* Practical Cards Grid */
+.rox-practical-card {
+    background-color: var(--card-main);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-md);
+    padding: 1.2rem 1.4rem;
+    margin-bottom: 1rem;
+    transition: border-color 0.2s ease, transform 0.15s ease;
+}
+
+.rox-practical-card:hover {
+    border-color: var(--accent-cyan);
+    transform: translateY(-2px);
+}
+
+.rox-practical-badge {
     display: inline-block;
-    margin: 0.25rem;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding: 0.2rem 0.55rem;
+    border-radius: var(--radius-sm);
+    margin-bottom: 0.6rem;
+    background: rgba(34, 211, 238, 0.1);
+    color: var(--accent-cyan);
+    border: 1px solid rgba(34, 211, 238, 0.2);
 }
 
-.quick-chip:hover {
-    background: rgba(108, 99, 255, 0.2);
-    border-color: var(--accent-purple);
-    color: #FFFFFF;
+.rox-practical-title {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 0.4rem;
 }
 
-/* Streamlit Widget Theme Overrides */
-div.stButton > button {
-    background-color: #1B2330 !important;
-    color: var(--text-primary) !important;
-    border: 1px solid var(--border-subtle) !important;
-    border-radius: var(--radius-sm) !important;
+.rox-practical-desc {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    line-height: 1.45;
+}
+
+/* Bottom Input / Upload Bar */
+.rox-upload-bar {
+    background-color: var(--card-elevated);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-lg);
+    padding: 1rem 1.4rem;
+    margin-top: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+/* Chat Message Styling */
+.rox-chat-bubble-user {
+    background: rgba(22, 135, 255, 0.12);
+    border: 1px solid rgba(22, 135, 255, 0.25);
+    border-radius: 12px 12px 2px 12px;
+    padding: 0.8rem 1.1rem;
+    margin: 0.5rem 0 0.5rem auto;
+    max-width: 80%;
+    color: var(--text-primary);
+    font-size: 0.9rem;
+}
+
+.rox-chat-bubble-rox {
+    background-color: var(--card-main);
+    border: 1px solid var(--border-subtle);
+    border-radius: 12px 12px 12px 2px;
+    padding: 0.9rem 1.2rem;
+    margin: 0.5rem auto 0.5rem 0;
+    max-width: 85%;
+    color: var(--text-primary);
+    font-size: 0.9rem;
+    line-height: 1.55;
+}
+
+/* Streamlit Native Element Overrides */
+div[data-testid="stFileUploader"] {
+    background: transparent !important;
+}
+
+div[data-testid="stFileUploader"] section {
+    background-color: var(--card-main) !important;
+    border: 1px dashed var(--border-subtle) !important;
+    border-radius: var(--radius-md) !important;
+}
+
+button[kind="primary"] {
+    background-color: var(--accent-blue) !important;
+    border: 1px solid var(--accent-cyan) !important;
+    color: #FFFFFF !important;
     font-weight: 600 !important;
-    font-size: 0.88rem !important;
-    transition: all 0.15s ease !important;
-}
-
-div.stButton > button:hover {
-    background-color: var(--accent-purple) !important;
-    color: #FFFFFF !important;
-    border-color: var(--accent-purple) !important;
-    box-shadow: 0 0 15px rgba(108, 99, 255, 0.4) !important;
-}
-
-div.stButton > button[kind="primary"] {
-    background: linear-gradient(135deg, #6C63FF 0%, #4D44E0 100%) !important;
-    color: #FFFFFF !important;
-    border: none !important;
-    box-shadow: 0 4px 15px rgba(108, 99, 255, 0.35) !important;
-}
-
-div.stButton > button[kind="primary"]:hover {
-    background: linear-gradient(135deg, #7B73FF 0%, #5B52EE 100%) !important;
-    box-shadow: 0 6px 20px rgba(108, 99, 255, 0.5) !important;
-}
-
-/* Table styling */
-.stDataFrame {
-    border: 1px solid var(--border-subtle) !important;
     border-radius: var(--radius-sm) !important;
-    background: var(--card-bg) !important;
 }
 
-code, pre {
-    background-color: #0F141F !important;
-    color: var(--accent-cyan) !important;
+button[kind="secondary"] {
+    background-color: var(--card-elevated) !important;
     border: 1px solid var(--border-subtle) !important;
+    color: var(--text-primary) !important;
     border-radius: var(--radius-sm) !important;
-    font-family: 'JetBrains Mono', monospace !important;
+}
+
+/* Dataframe styling */
+[data-testid="stDataFrame"] {
+    border: 1px solid var(--border-subtle) !important;
+    border-radius: var(--radius-md) !important;
+    overflow: hidden !important;
 }

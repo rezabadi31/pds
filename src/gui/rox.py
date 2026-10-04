@@ -1,37 +1,144 @@
 """src/gui/rox.py
-Rox — Live Log Analysis Assistant
-Integrated AI assistant running the Practical 10 reusable pipeline on uploaded logs (.log, .txt, .csv),
-displaying traffic classifications, suspicious behavior, feature inspection, chat Q&A, and downloads.
+ROX — Master Live Log Analysis Assistant & Workspace
+Implements the exact UI inspiration:
+- Top status header (ROX ● Ready 📁 Log Status)
+- Large central workspace (Empty State Welcome Card when no log uploaded)
+- Bottom Upload & Input Bar (.LOG, .TXT, .CSV, .JSON)
+- Step-by-step real pipeline execution UI
+- Results Dashboard (4 KPI cards, Threat Distribution, Top Suspicious IPs, Top Suspicious Requests)
+- Feature Intelligence collapsible section
+- Fact-grounded Rox Deterministic Chat
+- Download exports (CSV & Parquet)
 """
 
-import json
+import io
 from pathlib import Path
+from typing import Dict, Any, Optional
 import streamlit as st
 import pandas as pd
-from typing import Dict, Any
 
-from config import THEME
-from src.pipeline.pipeline_runner import RoxLogAnalyzer, ask_rox
-from src.gui.charts import plot_traffic_classification_donut
+from config import THEME, DATA_DIR
+from src.pipeline.pipeline import RoxPipeline, ask_rox
+from src.gui.charts import (
+    plot_traffic_classification_donut,
+    plot_threat_distribution_bar,
+    plot_feature_importance_bar,
+)
 
 
 def render_rox_view():
-    """Renders the Rox Log Analysis Assistant page."""
+    """Renders the main Rox Live Analyzer workspace."""
 
-    # Rox Header
+    # Initialize Session States
+    if "analysis_result" not in st.session_state:
+        st.session_state.analysis_result = None
+    if "current_file_bytes" not in st.session_state:
+        st.session_state.current_file_bytes = None
+    if "current_filename" not in st.session_state:
+        st.session_state.current_filename = ""
+    if "chat_history" not in st.session_state:
+        st.session_state.chat_history = []
+    if "demo_requested" not in st.session_state:
+        st.session_state.demo_requested = False
+
+    analysis = st.session_state.analysis_result
+    has_active_log = (analysis is not None and analysis.get("status") == "SUCCESS")
+
+    # -------------------------------------------------------------
+    # 1. COMPACT TOP STATUS BAR
+    # -------------------------------------------------------------
+    status_text = "● Ready"
+    file_status = f"📁 {st.session_state.current_filename}" if st.session_state.current_filename else "📁 No log file uploaded"
+    
     st.markdown(
         f"""
-        <div class="rox-header-card">
-            <div class="rox-avatar-circle">🤖</div>
-            <div>
-                <div style="font-size: 0.8rem; font-weight: 700; color: {THEME['accent_cyan']}; letter-spacing: 0.15em; text-transform: uppercase;">
-                    Security Intelligence Engine
+        <div class="rox-topbar">
+            <div class="rox-topbar-left">
+                <span style="font-size: 1.25rem;">🤖</span>
+                <div>
+                    <span class="rox-topbar-brand">ROX</span>
+                    <span style="color: {THEME['text_muted']}; margin: 0 0.4rem;">|</span>
+                    <span class="rox-topbar-subtitle">Log Intelligence</span>
                 </div>
-                <h1 style="font-size: 2.2rem; font-weight: 800; color: #FFFFFF; margin: 0.1rem 0 0.3rem 0;">
-                    Rox — Live Log Analysis Assistant
-                </h1>
-                <div style="font-size: 0.95rem; color: {THEME['text_secondary']};">
-                    Upload new server logs to execute the automated 7-stage pipeline. Rox extracts features, classifies threats, and answers forensic questions.
+            </div>
+            <div style="display: flex; align-items: center; gap: 1rem;">
+                <span class="rox-badge-status">{status_text}</span>
+                <span style="font-size: 0.8rem; color: {THEME['text_secondary']};">{file_status}</span>
+            </div>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+
+    # -------------------------------------------------------------
+    # 2. MAIN WORKSPACE: EMPTY STATE OR RESULTS DASHBOARD
+    # -------------------------------------------------------------
+    if not has_active_log:
+        _render_empty_state()
+    else:
+        _render_analysis_dashboard(analysis)
+
+    # -------------------------------------------------------------
+    # 3. BOTTOM UPLOAD / INPUT BAR
+    # -------------------------------------------------------------
+    _render_bottom_upload_bar()
+
+
+def _render_empty_state():
+    """Renders the clean, uncluttered empty state before a log is analyzed."""
+    st.markdown(
+        f"""
+        <div class="rox-welcome-card" style="margin-top: 1rem; margin-bottom: 2rem;">
+            <div class="rox-welcome-icon">🤖</div>
+            <div class="rox-welcome-title">ROX</div>
+            <div class="rox-welcome-tagline">"Hi, I'm Rox."</div>
+            <div class="rox-welcome-desc">
+                I can analyze your web access logs using the reusable log-processing pipeline.<br>
+                Upload a log file below to begin.
+            </div>
+            <div style="display: inline-flex; gap: 0.5rem; justify-content: center; background: {THEME['card_elevated']}; padding: 0.4rem 0.9rem; border-radius: 9999px; border: 1px solid {THEME['border']};">
+                <span style="font-size: 0.75rem; color: {THEME['text_muted']}; font-weight: 600; text-transform: uppercase;">Supported:</span>
+                <span style="font-size: 0.75rem; color: {THEME['accent_cyan']}; font-weight: 700;">.LOG</span>
+                <span style="font-size: 0.75rem; color: {THEME['text_muted']};">·</span>
+                <span style="font-size: 0.75rem; color: {THEME['accent_cyan']}; font-weight: 700;">.TXT</span>
+                <span style="font-size: 0.75rem; color: {THEME['text_muted']};">·</span>
+                <span style="font-size: 0.75rem; color: {THEME['accent_cyan']}; font-weight: 700;">.CSV</span>
+                <span style="font-size: 0.75rem; color: {THEME['text_muted']};">·</span>
+                <span style="font-size: 0.75rem; color: {THEME['accent_cyan']}; font-weight: 700;">.JSON</span>
+            </div>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+
+
+def _render_analysis_dashboard(analysis: Dict[str, Any]):
+    """Renders the comprehensive, dark cybersecurity analysis dashboard."""
+    fname = analysis.get("filename", "log")
+    total = analysis.get("total_records", 0)
+    attacks = analysis.get("attacks_count", 0)
+    benign = analysis.get("benign_count", 0)
+    anomalous = analysis.get("anomalous_count", 0)
+    dur = analysis.get("duration_sec", 0.0)
+    labels = analysis.get("label_distribution", {})
+    df = analysis.get("df", pd.DataFrame())
+
+    # Header Card
+    st.markdown(
+        f"""
+        <div style="display: flex; justify-content: space-between; align-items: center; background: {THEME['card_bg']}; border: 1px solid {THEME['border']}; border-radius: 12px; padding: 1rem 1.4rem; margin-bottom: 1.2rem;">
+            <div>
+                <span style="font-size: 0.75rem; color: {THEME['accent_cyan']}; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em;">
+                    Security Analysis Complete
+                </span>
+                <div style="font-size: 1.3rem; font-weight: 800; color: {THEME['text_primary']};">
+                    {fname}
+                </div>
+            </div>
+            <div style="text-align: right;">
+                <span style="font-size: 0.75rem; color: {THEME['text_muted']};">Execution Runtime</span>
+                <div style="font-size: 1.1rem; font-weight: 700; color: {THEME['accent_cyan']}; font-family: 'JetBrains Mono', monospace;">
+                    {dur:.2f}s
                 </div>
             </div>
         </div>
@@ -39,330 +146,339 @@ def render_rox_view():
         unsafe_allow_html=True
     )
 
-    # Initialize Session State for Rox
-    if "rox_analysis" not in st.session_state:
-        st.session_state.rox_analysis = None
-    if "rox_messages" not in st.session_state:
-        st.session_state.rox_messages = []
-    if "demo_loaded" not in st.session_state:
-        st.session_state.demo_loaded = False
+    # 4 Clean KPI Cards
+    st.markdown(
+        f"""
+        <div class="rox-kpi-grid">
+            <div class="rox-kpi-card">
+                <div class="rox-kpi-label">TOTAL REQUESTS</div>
+                <div class="rox-kpi-value">{total:,}</div>
+                <div class="rox-kpi-sub">{analysis.get('unique_ips', 0)} unique client IPs</div>
+            </div>
+            <div class="rox-kpi-card">
+                <div class="rox-kpi-label" style="color: {THEME['danger']};">ATTACKS</div>
+                <div class="rox-kpi-value" style="color: {THEME['danger']};">{attacks:,}</div>
+                <div class="rox-kpi-sub">Rule-based threat signatures</div>
+            </div>
+            <div class="rox-kpi-card">
+                <div class="rox-kpi-label" style="color: {THEME['success']};">BENIGN</div>
+                <div class="rox-kpi-value" style="color: {THEME['success']};">{benign:,}</div>
+                <div class="rox-kpi-sub">Normal web access traffic</div>
+            </div>
+            <div class="rox-kpi-card">
+                <div class="rox-kpi-label" style="color: {THEME['accent_cyan']};">ANOMALOUS</div>
+                <div class="rox-kpi-value" style="color: {THEME['accent_cyan']};">{anomalous:,}</div>
+                <div class="rox-kpi-sub">Isolation Forest deviance</div>
+            </div>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
 
-    # Upload Section Container
+    # Threat Distribution Charts
+    c_chart1, c_chart2 = st.columns(2)
+    with c_chart1:
+        fig_donut = plot_traffic_classification_donut(labels)
+        if fig_donut:
+            st.plotly_chart(fig_donut, use_container_width=True)
+    with c_chart2:
+        fig_bar = plot_threat_distribution_bar(labels)
+        if fig_bar:
+            st.plotly_chart(fig_bar, use_container_width=True)
+
+    # Top Suspicious IPs Table
+    top_ips = analysis.get("top_suspicious_ips", [])
+    if top_ips:
+        st.markdown(
+            f"""
+            <div style="font-size: 0.95rem; font-weight: 700; color: {THEME['text_primary']}; margin: 1.2rem 0 0.5rem 0;">
+                TOP SUSPICIOUS CLIENT IPs
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+        df_ips = pd.DataFrame(top_ips)
+        st.dataframe(df_ips, use_container_width=True, hide_index=True)
+
+    # Top Suspicious Requests Table
+    req_df = analysis.get("top_suspicious_requests_df", pd.DataFrame())
+    if not req_df.empty:
+        st.markdown(
+            f"""
+            <div style="font-size: 0.95rem; font-weight: 700; color: {THEME['text_primary']}; margin: 1.4rem 0 0.5rem 0;">
+                TOP SUSPICIOUS REQUESTS
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+        st.dataframe(req_df, use_container_width=True, hide_index=True)
+
+    # Feature Intelligence Collapsible Section
+    feat_summary = analysis.get("feature_summary", {})
+    with st.expander("🔍 FEATURE INTELLIGENCE", expanded=False):
+        feat_count = feat_summary.get("total_engineered_features", 0)
+        st.markdown(f"**Total Features Engineered**: `{feat_count}`")
+        
+        # Display Feature Groups
+        groups = feat_summary.get("feature_groups", {})
+        col_g1, col_g2 = st.columns(2)
+        for idx, (grp_name, grp_feats) in enumerate(groups.items()):
+            col_target = col_g1 if idx % 2 == 0 else col_g2
+            with col_target:
+                st.markdown(f"**{grp_name}** ({len(grp_feats)}):")
+                st.caption(", ".join([f"`{f}`" for f in grp_feats]))
+
+        # Feature Importance Chart
+        imp_df = feat_summary.get("feature_importance", pd.DataFrame())
+        if not imp_df.empty:
+            fig_imp = plot_feature_importance_bar(imp_df, top_n=10)
+            if fig_imp:
+                st.plotly_chart(fig_imp, use_container_width=True)
+
+        # Skipped Features Diagnostics
+        skipped = feat_summary.get("skipped_features", [])
+        if skipped:
+            st.markdown("<div style='margin-top: 0.8rem;'></div>", unsafe_allow_html=True)
+            for skip_msg in skipped:
+                st.info(f"ℹ️ {skip_msg}")
+
+    # Rox Offline Chat Section
+    _render_rox_chat(analysis)
+
+    # Export Downloads (Reads pre-generated pipeline artifacts to eliminate Streamlit rerun lag)
+    st.markdown("<div style='margin-top: 1.5rem;'></div>", unsafe_allow_html=True)
+    c_dl1, c_dl2 = st.columns(2)
+    csv_path = analysis.get("csv_path")
+    parquet_path = analysis.get("parquet_path")
+
+    with c_dl1:
+        if csv_path and Path(csv_path).exists():
+            with open(csv_path, "rb") as f:
+                csv_bytes = f.read()
+        else:
+            csv_bytes = df.to_csv(index=False).encode("utf-8")
+
+        st.download_button(
+            label="💾 Download Analyzed CSV",
+            data=csv_bytes,
+            file_name=f"rox_analyzed_{Path(fname).stem}.csv",
+            mime="text/csv",
+            use_container_width=True,
+        )
+
+    with c_dl2:
+        parquet_bytes = None
+        if parquet_path and Path(parquet_path).exists():
+            try:
+                with open(parquet_path, "rb") as f:
+                    parquet_bytes = f.read()
+            except Exception:
+                parquet_bytes = None
+        elif not df.empty:
+            try:
+                parquet_buf = io.BytesIO()
+                df.to_parquet(parquet_buf, index=False)
+                parquet_bytes = parquet_buf.getvalue()
+            except Exception:
+                parquet_bytes = None
+
+        if parquet_bytes is not None:
+            st.download_button(
+                label="📦 Download Analyzed Parquet (Compressed)",
+                data=parquet_bytes,
+                file_name=f"rox_analyzed_{Path(fname).stem}.parquet",
+                mime="application/octet-stream",
+                use_container_width=True,
+            )
+        else:
+            st.caption("Parquet export not available.")
+
+
+def _render_rox_chat(analysis: Dict[str, Any]):
+    """Renders the fact-grounded Rox Chat Q&A interface."""
+    st.markdown(
+        f"""
+        <div style="margin-top: 1.6rem; margin-bottom: 0.6rem; display: flex; align-items: center; gap: 0.6rem;">
+            <span style="font-size: 1.1rem;">🤖</span>
+            <span style="font-size: 1.05rem; font-weight: 700; color: {THEME['text_primary']};">
+                ASK ROX (OFFLINE DETERMINISTIC Q&amp;A)
+            </span>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+
+    # Suggestion Chips
+    st.caption("Suggested questions (click to ask Rox):")
+    chips = [
+        "What attacks were detected?",
+        "Which IP is most suspicious?",
+        "What was the most common attack?",
+        "Which features were extracted?",
+        "Show me the anomalous requests.",
+        "Why was this request suspicious?",
+    ]
+
+    cols = st.columns(3)
+    chosen_chip = None
+    for i, chip_text in enumerate(chips):
+        with cols[i % 3]:
+            if st.button(chip_text, key=f"chip_{i}", use_container_width=True):
+                chosen_chip = chip_text
+
+    # Chat history display
+    for msg in st.session_state.chat_history:
+        if msg["role"] == "user":
+            st.markdown(f'<div class="rox-chat-bubble-user"><strong>You:</strong> {msg["content"]}</div>', unsafe_allow_html=True)
+        else:
+            st.markdown(f'<div class="rox-chat-bubble-rox"><strong>🤖 Rox:</strong><br>{msg["content"]}</div>', unsafe_allow_html=True)
+
+    # Chat Input
+    user_input = st.chat_input("Ask Rox about this log analysis...") or chosen_chip
+    if user_input:
+        st.session_state.chat_history.append({"role": "user", "content": user_input})
+        answer = ask_rox(user_input, analysis)
+        st.session_state.chat_history.append({"role": "assistant", "content": answer})
+        st.rerun()
+
+
+def _render_bottom_upload_bar():
+    """Renders the bottom upload bar with file selector and analyze trigger."""
+    st.markdown("<hr style='border: none; border-top: 1px solid rgba(120, 180, 255, 0.1); margin: 2rem 0 1rem 0;'>", unsafe_allow_html=True)
+
     with st.container():
         st.markdown(
             f"""
-            <div class="detail-section">
-                <div class="detail-section-title">
-                    <span>📤</span> UPLOAD LOG TELEMETRY FOR ANALYSIS
-                </div>
+            <div style="font-size: 0.85rem; font-weight: 700; color: {THEME['text_secondary']}; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem;">
+                📎 LOG INGESTION &amp; UPLOAD
+            </div>
             """,
             unsafe_allow_html=True
         )
 
-        col_up, col_demo = st.columns([3, 1])
-        with col_up:
-            uploaded_file = st.file_uploader(
-                "Choose a server access log file (.log, .txt, .csv):",
-                type=["log", "txt", "csv"],
-                key="rox_uploader",
-                help="Supported formats: Honeypot JSON logs (.log), Common/Combined Access Logs (.txt), Structured Logs (.csv)"
+        col_file, col_demo = st.columns([3, 1])
+
+        with col_file:
+            uploaded = st.file_uploader(
+                "Upload a log file to begin analysis...",
+                type=["log", "txt", "csv", "json"],
+                key="rox_bottom_uploader",
+                label_visibility="collapsed",
             )
 
         with col_demo:
-            st.markdown("<div style='height: 28px;'></div>", unsafe_allow_html=True)
-            if st.button("⚡ Load Demo Honeypot Log", key="btn_load_demo", use_container_width=True):
-                st.session_state.demo_loaded = True
-                st.toast("Loaded sample_honeypot.log (50 real honeypot connections)", icon="📥")
-                st.rerun()
+            if st.button("⚡ Load Demo Log", key="btn_load_demo", use_container_width=True):
+                demo_path = DATA_DIR / "sample_honeypot.log"
+                if demo_path.exists():
+                    with open(demo_path, "rb") as f:
+                        st.session_state.current_file_bytes = f.read()
+                        st.session_state.current_filename = "sample_honeypot.log"
+                    st.session_state.demo_requested = True
+                    st.rerun()
+                else:
+                    st.error("Demo file data/sample_honeypot.log not found.")
 
-        # Resolve target file (uploaded file takes precedence over demo)
-        target_file = None
-        filename = ""
+        # Update session file if uploaded
+        if uploaded is not None:
+            st.session_state.current_file_bytes = uploaded.getvalue()
+            st.session_state.current_filename = uploaded.name
 
-        if uploaded_file is not None:
-            target_file = uploaded_file
-            filename = uploaded_file.name
-            st.session_state.demo_loaded = False
-        elif st.session_state.demo_loaded:
-            demo_path = Path("data/sample_honeypot.log")
-            if demo_path.exists():
-                with open(demo_path, "rb") as df_in:
-                    target_file = io.BytesIO(df_in.read())
-                    filename = "sample_honeypot.log"
-            else:
-                st.warning("Demo file not found.")
-
-        if target_file and filename:
-            file_bytes = target_file.getvalue() if hasattr(target_file, "getvalue") else target_file.read()
-            if hasattr(target_file, "seek"):
-                target_file.seek(0)
-
-            size_kb = len(file_bytes) / 1024
-            ext = Path(filename).suffix.lower()
+        # If a file is ready, show File Ready Card and Analyze Button
+        if st.session_state.current_file_bytes and st.session_state.current_filename:
+            fname = st.session_state.current_filename
+            fsize_kb = len(st.session_state.current_file_bytes) / 1024.0
+            ext = Path(fname).suffix.upper()
 
             st.markdown(
                 f"""
-                <div style="display: flex; gap: 1.5rem; background: #10151F; border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 0.9rem 1.2rem; margin: 1rem 0;">
-                    <div><span style="color: {THEME['text_muted']}; font-size: 0.75rem; text-transform: uppercase;">File</span><br><strong>{filename}</strong></div>
-                    <div><span style="color: {THEME['text_muted']}; font-size: 0.75rem; text-transform: uppercase;">Size</span><br><strong>{size_kb:.1f} KB</strong></div>
-                    <div><span style="color: {THEME['text_muted']}; font-size: 0.75rem; text-transform: uppercase;">Format</span><br><strong>{ext.upper()}</strong></div>
-                    <div><span style="color: {THEME['text_muted']}; font-size: 0.75rem; text-transform: uppercase;">Status</span><br><span style="color: {THEME['accent_cyan']}; font-weight: bold;">● READY TO ANALYZE</span></div>
+                <div style="display: flex; justify-content: space-between; align-items: center; background: {THEME['card_elevated']}; border: 1px solid {THEME['border']}; border-radius: 8px; padding: 0.75rem 1.2rem; margin: 0.8rem 0;">
+                    <div>
+                        <span style="font-size: 0.72rem; color: {THEME['accent_cyan']}; font-weight: 700; text-transform: uppercase;">FILE READY</span>
+                        <div style="font-weight: 700; color: {THEME['text_primary']}; font-size: 0.95rem;">{fname} ({fsize_kb:.1f} KB, {ext})</div>
+                    </div>
+                    <span class="rox-badge-status">Ready to Analyze</span>
                 </div>
                 """,
                 unsafe_allow_html=True
             )
 
-            # Analyze Button
-            if st.button("🚀 Analyze with Rox", type="primary", key="btn_run_rox", use_container_width=True):
-                with st.spinner("Rox is processing your logs through the Practical 10 Reusable Pipeline..."):
-                    analyzer = RoxLogAnalyzer(target_file, filename=filename)
-                    analysis = analyzer.run_analysis()
-                    st.session_state.rox_analysis = analysis
-
-                    total_rec = analysis.get("total_records", 0)
-                    if analysis.get("status") == "SUCCESS" and total_rec > 0:
-                        st.session_state.rox_messages = [
-                            {
-                                "sender": "Rox",
-                                "text": (
-                                    f"I completed analyzing `{filename}` using the Practical 10 pipeline. "
-                                    f"Processed **{total_rec:,} requests** across **{analysis.get('unique_ips', 0)} client IPs** in **{analysis.get('duration_sec', 0.0)}s**.\n\n"
-                                    f"Detected **{analysis.get('attack_count', 0):,} attack events** ({analysis.get('attack_percentage', 0.0)}% of traffic). "
-                                    f"Review the classification breakdown below or ask me any question!"
-                                )
-                            }
-                        ]
-                        st.success(f"Analysis complete! Processed {total_rec:,} requests.")
-                    else:
-                        err_detail = analysis.get("error") or "No records could be parsed."
-                        st.session_state.rox_messages = [
-                            {
-                                "sender": "Rox",
-                                "text": (
-                                    f"⚠️ I finished parsing `{filename}`, but found 0 valid log entries ({err_detail}).\n\n"
-                                    f"Please ensure your file contains server access logs (CLF/Combined), honeypot JSON arrays, or a CSV export."
-                                )
-                            }
-                        ]
-                        st.warning(f"Could not extract log records: {err_detail}")
-                st.rerun()
-
-        st.markdown("</div>", unsafe_allow_html=True)
-
-    # Display Analysis Dashboard if available
-    analysis = st.session_state.rox_analysis
-    if analysis and analysis.get("status") == "SUCCESS" and analysis.get("total_records", 0) > 0:
-        st.markdown("---")
-    elif analysis and analysis.get("total_records", 0) == 0:
-        st.markdown("---")
-        st.warning(
-            f"⚠️ **0 Valid Records Found in `{analysis.get('filename', 'file')}`**.\n\n"
-            f"Supported formats include: Honeypot JSON logs, Apache/Nginx Combined/Common logs, or CSVs with IP & timestamp columns. "
-            f"Click **⚡ Load Demo Honeypot Log** above to test with 50 verified honeypot requests."
-        )
-
-        # 1. High-Level Metrics Strip
-        m1, m2, m3, m4, m5 = st.columns(5)
-        with m1:
-            st.metric("Total Records", f"{analysis['total_records']:,}")
-        with m2:
-            st.metric("Unique Client IPs", f"{analysis['unique_ips']:,}")
-        with m3:
-            st.metric("Total Attacks", f"{analysis['attack_count']:,}", f"{analysis['attack_percentage']}%")
-        with m4:
-            st.metric("Features Extracted", f"{analysis['total_columns']}")
-        with m5:
-            st.metric("Processing Time", f"{analysis['duration_sec']}s")
-
-        # 2. Traffic Classification & Suspicious Activity
-        c_left, c_right = st.columns([1, 1])
-
-        with c_left:
-            st.markdown(
-                f"""
-                <div class="detail-section">
-                    <div class="detail-section-title">
-                        <span>📊</span> TRAFFIC CLASSIFICATION BREAKDOWN
-                    </div>
-                """,
-                unsafe_allow_html=True
-            )
-            st.plotly_chart(plot_traffic_classification_donut(analysis["label_counts"]), use_container_width=True)
-
-            # Class count table
-            table_data = [
-                {"Category": k, "Count": f"{v:,}", "Share": f"{(v / analysis['total_records']) * 100:.2f}%"}
-                for k, v in analysis["label_counts"].items()
-            ]
-            st.dataframe(pd.DataFrame(table_data), use_container_width=True, hide_index=True)
-            st.markdown("</div>", unsafe_allow_html=True)
-
-        with c_right:
-            st.markdown(
-                f"""
-                <div class="detail-section">
-                    <div class="detail-section-title">
-                        <span>🚨</span> SUSPICIOUS ACTIVITY &amp; THREAT SIGNALS
-                    </div>
-                """,
-                unsafe_allow_html=True
-            )
-
-            # Top Attacking IPs
-            top_ips = analysis.get("top_attack_ips", [])
-            if top_ips:
-                st.markdown("**Top Attacking Hosts:**")
-                st.dataframe(pd.DataFrame(top_ips), use_container_width=True, hide_index=True)
-            else:
-                st.markdown(f"<span style='color: {THEME['success']};'>● No malicious attack IPs identified.</span>", unsafe_allow_html=True)
-
-            # High Entropy URLs
-            entropy_urls = analysis.get("high_entropy_urls", [])
-            if entropy_urls:
-                st.markdown("**High-Entropy Resource Paths (Obfuscation Signal):**")
-                st.dataframe(pd.DataFrame(entropy_urls), use_container_width=True, hide_index=True)
-
-            # Burst IPs
-            burst = analysis.get("burst_ips", [])
-            if burst:
-                st.markdown("**High Request-Rate IPs (Burst Traffic):**")
-                st.dataframe(pd.DataFrame(burst), use_container_width=True, hide_index=True)
-
-            st.markdown("</div>", unsafe_allow_html=True)
-
-        # 3. Engineered Features Inspector
-        df = analysis.get("df")
-        if df is not None:
-            with st.expander("🔍 Inspect Engineered Feature Matrix (Top 50 Rows)", expanded=False):
-                st.dataframe(df.head(50), use_container_width=True)
-
-        # 4. Downloads
-        c_dl1, c_dl2, c_dl3 = st.columns(3)
-        with c_dl1:
-            csv_path = analysis.get("csv_path")
-            if csv_path and Path(csv_path).exists():
-                with open(csv_path, "rb") as f_csv:
-                    st.download_button(
-                        "📥 Download Processed CSV",
-                        data=f_csv.read(),
-                        file_name=f"processed_{analysis['filename']}.csv",
-                        mime="text/csv",
-                        use_container_width=True,
-                    )
-        with c_dl2:
-            pq_path = analysis.get("parquet_path")
-            if pq_path and Path(pq_path).exists():
-                with open(pq_path, "rb") as f_pq:
-                    st.download_button(
-                        "⚡ Download Parquet",
-                        data=f_pq.read(),
-                        file_name=f"processed_{Path(analysis['filename']).stem}.parquet",
-                        mime="application/octet-stream",
-                        use_container_width=True,
-                    )
-        with c_dl3:
-            summary_dict = {
-                "file": analysis["filename"],
-                "records": analysis["total_records"],
-                "attack_count": analysis["attack_count"],
-                "label_counts": analysis["label_counts"],
-                "unique_ips": analysis["unique_ips"],
-                "time_range": analysis["time_range"],
-                "runtime_sec": analysis["duration_sec"],
-            }
-            st.download_button(
-                "📋 Download Analysis Summary",
-                data=json.dumps(summary_dict, indent=2),
-                file_name=f"summary_{Path(analysis['filename']).stem}.json",
-                mime="application/json",
-                use_container_width=True,
-            )
-
-        st.markdown("---")
-
-        # 5. ROX CHAT INTERFACE
-        st.markdown(
-            f"""
-            <div class="detail-section">
-                <div class="detail-section-title">
-                    <span>💬</span> CONVERSATIONAL LOG INTELLIGENCE WITH ROX
-                </div>
-            """,
-            unsafe_allow_html=True
-        )
-
-        # Quick Prompt Chips
-        st.markdown("<span style='font-size: 0.82rem; color: #A7B0BE;'>Quick Questions for Rox:</span>", unsafe_allow_html=True)
-        col_q1, col_q2, col_q3 = st.columns(3)
-        with col_q1:
-            if st.button("❓ What attacks were detected?", key="q_attacks", use_container_width=True):
-                st.session_state.rox_messages.append({"sender": "You", "text": "What attacks were detected?"})
-                st.session_state.rox_messages.append({"sender": "Rox", "text": ask_rox("What attacks were detected?", analysis)})
-                st.rerun()
-            if st.button("❓ Which IP is most suspicious?", key="q_top_ip", use_container_width=True):
-                st.session_state.rox_messages.append({"sender": "You", "text": "Which IP generated the most suspicious requests?"})
-                st.session_state.rox_messages.append({"sender": "Rox", "text": ask_rox("Which IP generated the most suspicious requests?", analysis)})
-                st.rerun()
-
-        with col_q2:
-            if st.button("❓ What was the most common attack?", key="q_common", use_container_width=True):
-                st.session_state.rox_messages.append({"sender": "You", "text": "What was the most common attack?"})
-                st.session_state.rox_messages.append({"sender": "Rox", "text": ask_rox("What was the most common attack?", analysis)})
-                st.rerun()
-            if st.button("❓ Why were requests flagged?", key="q_reason", use_container_width=True):
-                st.session_state.rox_messages.append({"sender": "You", "text": "Why was this request classified as suspicious?"})
-                st.session_state.rox_messages.append({"sender": "Rox", "text": ask_rox("Why was this request classified as suspicious?", analysis)})
-                st.rerun()
-
-        with col_q3:
-            if st.button("❓ What features were extracted?", key="q_features", use_container_width=True):
-                st.session_state.rox_messages.append({"sender": "You", "text": "What features were extracted?"})
-                st.session_state.rox_messages.append({"sender": "Rox", "text": ask_rox("What features were extracted?", analysis)})
-                st.rerun()
-            if st.button("❓ Show top attacking IPs", key="q_show_ips", use_container_width=True):
-                st.session_state.rox_messages.append({"sender": "You", "text": "Show me the top attacking IPs."})
-                st.session_state.rox_messages.append({"sender": "Rox", "text": ask_rox("Show me the top attacking IPs.", analysis)})
-                st.rerun()
-
-        st.write("")
-
-        # Message History
-        for msg in st.session_state.rox_messages:
-            if msg["sender"] == "Rox":
-                st.markdown(
-                    f"""
-                    <div style="display: flex; gap: 0.8rem; margin-bottom: 0.8rem;">
-                        <div style="width: 36px; height: 36px; border-radius: 50%; background: #6C63FF; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; flex-shrink: 0;">🤖</div>
-                        <div class="rox-bubble">
-                            <div style="font-weight: 700; color: {THEME['accent_cyan']}; font-size: 0.82rem; margin-bottom: 0.3rem;">Rox</div>
-                            <div>{msg['text'].replace('\n', '<br>')}</div>
-                        </div>
-                    </div>
-                    """,
-                    unsafe_allow_html=True
+            # Processing Scope Selector
+            col_mode, col_btn = st.columns([2, 1])
+            with col_mode:
+                speed_mode = st.selectbox(
+                    "Processing Speed & Scope:",
+                    options=[
+                        "⚡ Fast Intelligence (First 50,000 records — Instant ~1-2s)",
+                        "🚀 High Throughput (First 150,000 records — ~3-4s)",
+                        "🔬 Complete Full Log Analysis (All records)",
+                    ],
+                    index=0 if fsize_kb > 2000 else 2,
+                    key="rox_speed_mode",
                 )
-            else:
-                st.markdown(
-                    f"""
-                    <div class="user-bubble">
-                        <div style="font-weight: 700; color: #FFFFFF; font-size: 0.82rem; margin-bottom: 0.2rem;">You</div>
-                        <div>{msg['text']}</div>
-                    </div>
-                    """,
-                    unsafe_allow_html=True
-                )
+            
+            max_rec = None
+            if "50,000" in speed_mode:
+                max_rec = 50000
+            elif "150,000" in speed_mode:
+                max_rec = 150000
 
-        # User Text Input
-        with st.form("rox_chat_form", clear_on_submit=True):
-            user_input = st.text_input("Ask Rox anything about your uploaded log file...", placeholder="e.g. Which IP made the most requests?")
-            col_send1, col_send2 = st.columns([5, 1])
-            with col_send2:
-                submitted = st.form_submit_button("Send →", use_container_width=True)
+            with col_btn:
+                st.markdown("<div style='margin-top: 1.7rem;'></div>", unsafe_allow_html=True)
+                if st.button("↑ Analyze with Rox", type="primary", key="btn_execute_analysis", use_container_width=True):
+                    _execute_pipeline(st.session_state.current_file_bytes, fname, max_records=max_rec)
 
-            if submitted and user_input.strip():
-                st.session_state.rox_messages.append({"sender": "You", "text": user_input})
-                response = ask_rox(user_input, analysis)
-                st.session_state.rox_messages.append({"sender": "Rox", "text": response})
-                st.rerun()
 
-        st.markdown("</div>", unsafe_allow_html=True)
+def _execute_pipeline(file_bytes: bytes, filename: str, max_records: Optional[int] = None):
+    """Executes the pipeline with visible, verified stage progress."""
+    scope_desc = f"(up to {max_records:,} records)" if max_records else "(full stream)"
+    st.markdown(
+        f"""
+        <div style="background: {THEME['card_bg']}; border: 1px solid {THEME['accent_cyan']}; border-radius: 12px; padding: 1.2rem; margin: 1rem 0;">
+            <div style="font-weight: 800; color: {THEME['text_primary']}; margin-bottom: 0.5rem;">
+                ROX IS ANALYZING YOUR LOG: <code>{filename}</code> <span style="font-size: 0.85rem; color: {THEME['accent_cyan']};">{scope_desc}</span>
+            </div>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+
+    progress_bar = st.progress(0)
+    status_label = st.empty()
+
+    stages_container = st.container()
+    stage_placeholders = {
+        "load": stages_container.empty(),
+        "parse": stages_container.empty(),
+        "structure": stages_container.empty(),
+        "preprocess": stages_container.empty(),
+        "label": stages_container.empty(),
+        "features": stages_container.empty(),
+        "anomaly": stages_container.empty(),
+        "results": stages_container.empty(),
+    }
+
+    def update_cb(msg: str, pct: int):
+        progress_bar.progress(pct)
+        status_label.caption(f"⚙️ {msg} ({pct}%)")
+
+    stage_placeholders["load"].markdown("⏳ Loading raw log stream...")
+    pipeline = RoxPipeline(file_bytes, filename=filename, max_records=max_records)
+    res = pipeline.run(progress_callback=update_cb)
+
+    if res.get("status") == "SUCCESS":
+        stage_placeholders["load"].markdown("✓ Loading")
+        stage_placeholders["parse"].markdown("✓ Parsing")
+        stage_placeholders["structure"].markdown("✓ Structuring")
+        stage_placeholders["preprocess"].markdown("✓ Preprocessing")
+        stage_placeholders["label"].markdown("✓ Attack Labeling")
+        stage_placeholders["features"].markdown("✓ Feature Engineering")
+        stage_placeholders["anomaly"].markdown("✓ Anomaly Analysis")
+        stage_placeholders["results"].markdown("✓ Results")
+
+        st.session_state.analysis_result = res
+        st.session_state.chat_history = []
+        throughput = int(res.get("total_records", 0) / max(0.01, res.get("duration_sec", 1.0)))
+        st.success(f"Analysis completed in {res.get('duration_sec', 0.0)}s! ({throughput:,} records/sec)")
+        st.rerun()
+    else:
+        st.error(f"Analysis halted: {res.get('error', 'Unknown parsing error')}")

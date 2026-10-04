@@ -1,6 +1,6 @@
 """utils/data_loader.py
-Safe, Cached Data Loader and File Utilities
-Optimized for high-performance Streamlit rendering without loading multi-hundred MB datasets into RAM.
+Safe, Cached Data Loader and File Utilities for Rox Platform
+Portable across local development and Streamlit Community Cloud without absolute paths.
 """
 
 import json
@@ -10,7 +10,7 @@ import pandas as pd
 import streamlit as st
 from PIL import Image
 
-from config import PROJECT_ROOT, PRACTICAL_DIRS
+from config import PROJECT_ROOT, ASSETS_DIR, PRACTICAL_DIRS
 
 
 def resolve_file_path(path_str: str) -> Path:
@@ -48,7 +48,7 @@ def read_text_file(path_str: str, max_lines: int = 500) -> str:
     """Safely read text or report files with line capping."""
     p = resolve_file_path(path_str)
     if not p.exists():
-        return f"[File not found on disk: {p}]"
+        return f"[File not found on disk: {p.name}]"
     try:
         with open(p, "r", encoding="utf-8", errors="replace") as f:
             lines = [f.readline() for _ in range(max_lines)]
@@ -75,47 +75,14 @@ def read_json_file(path_str: str) -> Dict[str, Any]:
 
 @st.cache_data(show_spinner=False)
 def load_csv_preview(path_str: str, nrows: int = 50) -> pd.DataFrame:
-    """Safely load only the top N rows of a CSV file for high-speed UI preview."""
+    """Safely load only top N rows of a CSV file for high-speed UI preview."""
     p = resolve_file_path(path_str)
     if not p.exists():
         return pd.DataFrame()
     try:
-        df = pd.read_csv(p, nrows=nrows)
-        return df
+        return pd.read_csv(p, nrows=nrows)
     except Exception as e:
         return pd.DataFrame({"Error": [f"Could not load preview: {str(e)}"]})
-
-
-@st.cache_data(show_spinner=False)
-def load_parquet_preview(path_str: str, nrows: int = 50) -> pd.DataFrame:
-    """Safely load top N rows of a Parquet file for preview."""
-    p = resolve_file_path(path_str)
-    if not p.exists():
-        return pd.DataFrame()
-    try:
-        import pyarrow.parquet as pq
-        parquet_file = pq.ParquetFile(p)
-        batch = next(parquet_file.iter_batches(batch_size=nrows))
-        df = batch.to_pandas()
-        return df
-    except Exception:
-        try:
-            df = pd.read_parquet(p)
-            return df.head(nrows)
-        except Exception as e:
-            return pd.DataFrame({"Error": [f"Could not load parquet preview: {str(e)}"]})
-
-
-@st.cache_data(show_spinner=False)
-def load_full_small_csv(path_str: str) -> pd.DataFrame:
-    """Load small CSV files (summaries, metrics, distributions) entirely."""
-    p = resolve_file_path(path_str)
-    if not p.exists():
-        return pd.DataFrame()
-    try:
-        return pd.read_csv(p)
-    except Exception:
-        return pd.DataFrame()
 
 
 def load_image(path_str: str) -> Optional[Image.Image]:
@@ -130,29 +97,46 @@ def load_image(path_str: str) -> Optional[Image.Image]:
 
 
 def get_all_practical_plots(practical_id: int) -> List[Dict[str, Any]]:
-    """Scan and return all generated plot images for a practical."""
-    p_dir = PRACTICAL_DIRS.get(practical_id)
-    if not p_dir or not p_dir.exists():
-        return []
+    """Scan and return all generated plot images for a practical.
     
+    Checks deployed assets/practicals/practical_XX first for Cloud portability,
+    then checks Practical X/outputs/plots during local development.
+    """
     plots = []
-    # Search in outputs/plots, plots, outputs/ml_verification
-    candidate_dirs = [
-        p_dir / "outputs" / "plots",
-        p_dir / "plots",
-        p_dir / "outputs" / "ml_verification",
-    ]
-    
-    seen_paths = set()
-    for c_dir in candidate_dirs:
-        if c_dir.exists():
-            for img_file in sorted(c_dir.glob("*.png")):
-                if img_file not in seen_paths:
-                    seen_paths.add(img_file)
+    seen_names = set()
+
+    # Priority 1: Deployed assets directory (works on Cloud!)
+    deployed_dir = ASSETS_DIR / "practicals" / f"practical_{practical_id:02d}"
+    if deployed_dir.exists():
+        for ext in ["*.png", "*.jpg", "*.webp"]:
+            for img_file in sorted(deployed_dir.glob(ext)):
+                if img_file.name not in seen_names:
+                    seen_names.add(img_file.name)
                     plots.append({
                         "name": img_file.name,
                         "path": img_file,
                         "title": img_file.stem.replace("_", " ").title(),
                         "size_str": f"{img_file.stat().st_size / 1024:.1f} KB",
                     })
+
+    # Priority 2: Practical folder outputs (local fallback)
+    p_dir = PRACTICAL_DIRS.get(practical_id)
+    if p_dir and p_dir.exists():
+        candidate_dirs = [
+            p_dir / "outputs" / "plots",
+            p_dir / "plots",
+            p_dir / "outputs" / "ml_verification",
+        ]
+        for c_dir in candidate_dirs:
+            if c_dir.exists():
+                for ext in ["*.png", "*.jpg", "*.webp"]:
+                    for img_file in sorted(c_dir.glob(ext)):
+                        if img_file.name not in seen_names:
+                            seen_names.add(img_file.name)
+                            plots.append({
+                                "name": img_file.name,
+                                "path": img_file,
+                                "title": img_file.stem.replace("_", " ").title(),
+                                "size_str": f"{img_file.stat().st_size / 1024:.1f} KB",
+                            })
     return plots
