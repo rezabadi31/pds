@@ -2,9 +2,9 @@
 ROX — Master Live Log Analysis Assistant & Workspace
 Implements the exact UI inspiration:
 - Top status header (ROX ● Ready 📁 Log Status)
-- Large central workspace (Empty State Welcome Card when no log uploaded)
-- Bottom Upload & Input Bar (.LOG, .TXT, .CSV, .JSON)
-- Step-by-step real pipeline execution UI
+- Large central workspace with 1-click Ingestion & Demo trigger
+- Auto-runs pipeline upon file upload or demo click (zero confusing blank states)
+- Step-by-step real pipeline execution UI with progress updates
 - Results Dashboard (4 KPI cards, Threat Distribution, Top Suspicious IPs, Top Suspicious Requests)
 - Feature Intelligence collapsible section
 - Fact-grounded Rox Deterministic Chat
@@ -27,7 +27,7 @@ from src.gui.charts import (
 
 
 def render_rox_view():
-    """Renders the main Rox Live Analyzer workspace."""
+    """Renders the main Rox Live Analyzer workspace with automatic execution upon file ingestion."""
 
     # Initialize Session States
     if "analysis_result" not in st.session_state:
@@ -36,20 +36,20 @@ def render_rox_view():
         st.session_state.current_file_bytes = None
     if "current_filename" not in st.session_state:
         st.session_state.current_filename = ""
+    if "analyzed_filename" not in st.session_state:
+        st.session_state.analyzed_filename = ""
     if "chat_history" not in st.session_state:
         st.session_state.chat_history = []
-    if "demo_requested" not in st.session_state:
-        st.session_state.demo_requested = False
-
-    analysis = st.session_state.analysis_result
-    has_active_log = (analysis is not None and analysis.get("status") == "SUCCESS")
 
     # -------------------------------------------------------------
     # 1. COMPACT TOP STATUS BAR
     # -------------------------------------------------------------
-    status_text = "● Ready"
-    file_status = f"📁 {st.session_state.current_filename}" if st.session_state.current_filename else "📁 No log file uploaded"
+    analysis = st.session_state.analysis_result
+    has_active_log = (analysis is not None and analysis.get("status") == "SUCCESS" and analysis.get("total_records", 0) > 0)
     
+    status_text = "● Active" if has_active_log else "● Ready"
+    file_status = f"📁 {st.session_state.current_filename}" if st.session_state.current_filename else "📁 No log file loaded"
+
     st.markdown(
         f"""
         <div class="rox-topbar">
@@ -62,8 +62,8 @@ def render_rox_view():
                 </div>
             </div>
             <div style="display: flex; align-items: center; gap: 1rem;">
-                <span class="rox-badge-status">{status_text}</span>
-                <span style="font-size: 0.8rem; color: {THEME['text_secondary']};">{file_status}</span>
+                <span class="{"rox-badge-status" if not has_active_log else "rox-badge-status-active"}">{status_text}</span>
+                <span style="font-size: 0.82rem; color: {THEME['text_secondary']}; font-weight: 500;">{file_status}</span>
             </div>
         </div>
         """,
@@ -71,40 +71,75 @@ def render_rox_view():
     )
 
     # -------------------------------------------------------------
-    # 2. MAIN WORKSPACE: EMPTY STATE OR RESULTS DASHBOARD
+    # 2. INGESTION CONTROLS (Always accessible)
     # -------------------------------------------------------------
-    if not has_active_log:
-        _render_empty_state()
-    else:
-        _render_analysis_dashboard(analysis)
+    with st.container():
+        c_up, c_btn = st.columns([3, 1])
+        with c_up:
+            uploaded = st.file_uploader(
+                "Upload log file (.log, .txt, .csv, .json)",
+                type=["log", "txt", "csv", "json"],
+                key="rox_master_uploader",
+                help="Upload server access logs from Apache, Nginx, Honeypots, or SIEM exports."
+            )
+        with c_btn:
+            st.markdown("<div style='height: 28px;'></div>", unsafe_allow_html=True)
+            demo_clicked = st.button("⚡ Load Demo Log", key="btn_demo_trigger", use_container_width=True)
 
     # -------------------------------------------------------------
-    # 3. BOTTOM UPLOAD / INPUT BAR
+    # 3. AUTO-EXECUTION ENGINE: Handle Demo or Upload Immediately
     # -------------------------------------------------------------
-    _render_bottom_upload_bar()
+    if demo_clicked:
+        demo_path = DATA_DIR / "sample_honeypot.log"
+        if demo_path.exists():
+            with open(demo_path, "rb") as f:
+                demo_bytes = f.read()
+            st.session_state.current_file_bytes = demo_bytes
+            st.session_state.current_filename = "sample_honeypot.log"
+            _execute_pipeline(demo_bytes, "sample_honeypot.log")
+        else:
+            st.error("Demo file data/sample_honeypot.log not found.")
+
+    elif uploaded is not None:
+        # If user uploaded a new file that has not been analyzed yet
+        file_bytes = uploaded.getvalue()
+        if uploaded.name != st.session_state.analyzed_filename:
+            st.session_state.current_file_bytes = file_bytes
+            st.session_state.current_filename = uploaded.name
+            _execute_pipeline(file_bytes, uploaded.name)
+
+    # Refresh analysis reference after potential execution
+    analysis = st.session_state.analysis_result
+    has_active_log = (analysis is not None and analysis.get("status") == "SUCCESS" and analysis.get("total_records", 0) > 0)
+
+    # -------------------------------------------------------------
+    # 4. MAIN WORKSPACE: RESULTS DASHBOARD OR WELCOME CARD
+    # -------------------------------------------------------------
+    if has_active_log:
+        _render_analysis_dashboard(analysis)
+    else:
+        _render_empty_state()
 
 
 def _render_empty_state():
     """Renders the clean, uncluttered empty state before a log is analyzed."""
     st.markdown(
         f"""
-        <div class="rox-welcome-card" style="margin-top: 1rem; margin-bottom: 2rem;">
+        <div class="rox-welcome-card" style="margin-top: 1.5rem; margin-bottom: 2rem;">
             <div class="rox-welcome-icon">🤖</div>
             <div class="rox-welcome-title">ROX</div>
             <div class="rox-welcome-tagline">"Hi, I'm Rox."</div>
             <div class="rox-welcome-desc">
                 I can analyze your web access logs using the reusable log-processing pipeline.<br>
-                Upload a log file below to begin.
+                Upload a log file above, or click <strong>⚡ Load Demo Log</strong> to inspect live honeypot telemetry instantly.
             </div>
-            <div style="display: inline-flex; gap: 0.5rem; justify-content: center; background: {THEME['card_elevated']}; padding: 0.4rem 0.9rem; border-radius: 9999px; border: 1px solid {THEME['border']};">
-                <span style="font-size: 0.75rem; color: {THEME['text_muted']}; font-weight: 600; text-transform: uppercase;">Supported:</span>
-                <span style="font-size: 0.75rem; color: {THEME['accent_cyan']}; font-weight: 700;">.LOG</span>
+            <div style="display: inline-flex; gap: 0.5rem; justify-content: center; background: {THEME['card_elevated']}; padding: 0.4rem 0.9rem; border-radius: 9999px; border: 1px solid {THEME['border']}; margin-top: 0.5rem;">
+                <span style="font-size: 0.75rem; color: {THEME['text_muted']}; font-weight: 600; text-transform: uppercase;">Formats Supported:</span>
+                <span style="font-size: 0.75rem; color: {THEME['accent_cyan']}; font-weight: 700;">Honeypot JSON (.LOG)</span>
                 <span style="font-size: 0.75rem; color: {THEME['text_muted']};">·</span>
-                <span style="font-size: 0.75rem; color: {THEME['accent_cyan']}; font-weight: 700;">.TXT</span>
+                <span style="font-size: 0.75rem; color: {THEME['accent_cyan']}; font-weight: 700;">Apache / Nginx Combined (.TXT)</span>
                 <span style="font-size: 0.75rem; color: {THEME['text_muted']};">·</span>
-                <span style="font-size: 0.75rem; color: {THEME['accent_cyan']}; font-weight: 700;">.CSV</span>
-                <span style="font-size: 0.75rem; color: {THEME['text_muted']};">·</span>
-                <span style="font-size: 0.75rem; color: {THEME['accent_cyan']}; font-weight: 700;">.JSON</span>
+                <span style="font-size: 0.75rem; color: {THEME['accent_cyan']}; font-weight: 700;">Structured CSV (.CSV)</span>
             </div>
         </div>
         """,
@@ -126,7 +161,7 @@ def _render_analysis_dashboard(analysis: Dict[str, Any]):
     # Header Card
     st.markdown(
         f"""
-        <div style="display: flex; justify-content: space-between; align-items: center; background: {THEME['card_bg']}; border: 1px solid {THEME['border']}; border-radius: 12px; padding: 1rem 1.4rem; margin-bottom: 1.2rem;">
+        <div style="display: flex; justify-content: space-between; align-items: center; background: {THEME['card_bg']}; border: 1px solid {THEME['border']}; border-radius: 12px; padding: 1rem 1.4rem; margin: 1.2rem 0;">
             <div>
                 <span style="font-size: 0.75rem; color: {THEME['accent_cyan']}; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em;">
                     Security Analysis Complete
@@ -245,7 +280,7 @@ def _render_analysis_dashboard(analysis: Dict[str, Any]):
     # Rox Offline Chat Section
     _render_rox_chat(analysis)
 
-    # Export Downloads (Reads pre-generated pipeline artifacts to eliminate Streamlit rerun lag)
+    # Export Downloads
     st.markdown("<div style='margin-top: 1.5rem;'></div>", unsafe_allow_html=True)
     c_dl1, c_dl2 = st.columns(2)
     csv_path = analysis.get("csv_path")
@@ -342,100 +377,13 @@ def _render_rox_chat(analysis: Dict[str, Any]):
         st.rerun()
 
 
-def _render_bottom_upload_bar():
-    """Renders the bottom upload bar with file selector and analyze trigger."""
-    st.markdown("<hr style='border: none; border-top: 1px solid rgba(120, 180, 255, 0.1); margin: 2rem 0 1rem 0;'>", unsafe_allow_html=True)
-
-    with st.container():
-        st.markdown(
-            f"""
-            <div style="font-size: 0.85rem; font-weight: 700; color: {THEME['text_secondary']}; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem;">
-                📎 LOG INGESTION &amp; UPLOAD
-            </div>
-            """,
-            unsafe_allow_html=True
-        )
-
-        col_file, col_demo = st.columns([3, 1])
-
-        with col_file:
-            uploaded = st.file_uploader(
-                "Upload a log file to begin analysis...",
-                type=["log", "txt", "csv", "json"],
-                key="rox_bottom_uploader",
-                label_visibility="collapsed",
-            )
-
-        with col_demo:
-            if st.button("⚡ Load Demo Log", key="btn_load_demo", use_container_width=True):
-                demo_path = DATA_DIR / "sample_honeypot.log"
-                if demo_path.exists():
-                    with open(demo_path, "rb") as f:
-                        st.session_state.current_file_bytes = f.read()
-                        st.session_state.current_filename = "sample_honeypot.log"
-                    st.session_state.demo_requested = True
-                    st.rerun()
-                else:
-                    st.error("Demo file data/sample_honeypot.log not found.")
-
-        # Update session file if uploaded
-        if uploaded is not None:
-            st.session_state.current_file_bytes = uploaded.getvalue()
-            st.session_state.current_filename = uploaded.name
-
-        # If a file is ready, show File Ready Card and Analyze Button
-        if st.session_state.current_file_bytes and st.session_state.current_filename:
-            fname = st.session_state.current_filename
-            fsize_kb = len(st.session_state.current_file_bytes) / 1024.0
-            ext = Path(fname).suffix.upper()
-
-            st.markdown(
-                f"""
-                <div style="display: flex; justify-content: space-between; align-items: center; background: {THEME['card_elevated']}; border: 1px solid {THEME['border']}; border-radius: 8px; padding: 0.75rem 1.2rem; margin: 0.8rem 0;">
-                    <div>
-                        <span style="font-size: 0.72rem; color: {THEME['accent_cyan']}; font-weight: 700; text-transform: uppercase;">FILE READY</span>
-                        <div style="font-weight: 700; color: {THEME['text_primary']}; font-size: 0.95rem;">{fname} ({fsize_kb:.1f} KB, {ext})</div>
-                    </div>
-                    <span class="rox-badge-status">Ready to Analyze</span>
-                </div>
-                """,
-                unsafe_allow_html=True
-            )
-
-            # Processing Scope Selector
-            col_mode, col_btn = st.columns([2, 1])
-            with col_mode:
-                speed_mode = st.selectbox(
-                    "Processing Speed & Scope:",
-                    options=[
-                        "⚡ Fast Intelligence (First 50,000 records — Instant ~1-2s)",
-                        "🚀 High Throughput (First 150,000 records — ~3-4s)",
-                        "🔬 Complete Full Log Analysis (All records)",
-                    ],
-                    index=0 if fsize_kb > 2000 else 2,
-                    key="rox_speed_mode",
-                )
-            
-            max_rec = None
-            if "50,000" in speed_mode:
-                max_rec = 50000
-            elif "150,000" in speed_mode:
-                max_rec = 150000
-
-            with col_btn:
-                st.markdown("<div style='margin-top: 1.7rem;'></div>", unsafe_allow_html=True)
-                if st.button("↑ Analyze with Rox", type="primary", key="btn_execute_analysis", use_container_width=True):
-                    _execute_pipeline(st.session_state.current_file_bytes, fname, max_records=max_rec)
-
-
 def _execute_pipeline(file_bytes: bytes, filename: str, max_records: Optional[int] = None):
     """Executes the pipeline with visible, verified stage progress."""
-    scope_desc = f"(up to {max_records:,} records)" if max_records else "(full stream)"
     st.markdown(
         f"""
         <div style="background: {THEME['card_bg']}; border: 1px solid {THEME['accent_cyan']}; border-radius: 12px; padding: 1.2rem; margin: 1rem 0;">
             <div style="font-weight: 800; color: {THEME['text_primary']}; margin-bottom: 0.5rem;">
-                ROX IS ANALYZING YOUR LOG: <code>{filename}</code> <span style="font-size: 0.85rem; color: {THEME['accent_cyan']};">{scope_desc}</span>
+                ROX IS ANALYZING YOUR LOG: <code>{filename}</code>
             </div>
         </div>
         """,
@@ -445,40 +393,25 @@ def _execute_pipeline(file_bytes: bytes, filename: str, max_records: Optional[in
     progress_bar = st.progress(0)
     status_label = st.empty()
 
-    stages_container = st.container()
-    stage_placeholders = {
-        "load": stages_container.empty(),
-        "parse": stages_container.empty(),
-        "structure": stages_container.empty(),
-        "preprocess": stages_container.empty(),
-        "label": stages_container.empty(),
-        "features": stages_container.empty(),
-        "anomaly": stages_container.empty(),
-        "results": stages_container.empty(),
-    }
-
     def update_cb(msg: str, pct: int):
         progress_bar.progress(pct)
         status_label.caption(f"⚙️ {msg} ({pct}%)")
 
-    stage_placeholders["load"].markdown("⏳ Loading raw log stream...")
+    # Fast default ceiling of 100,000 records if file > 2MB to keep cloud execution within seconds
+    if max_records is None and len(file_bytes) > 2 * 1024 * 1024:
+        max_records = 100000
+
     pipeline = RoxPipeline(file_bytes, filename=filename, max_records=max_records)
     res = pipeline.run(progress_callback=update_cb)
 
-    if res.get("status") == "SUCCESS":
-        stage_placeholders["load"].markdown("✓ Loading")
-        stage_placeholders["parse"].markdown("✓ Parsing")
-        stage_placeholders["structure"].markdown("✓ Structuring")
-        stage_placeholders["preprocess"].markdown("✓ Preprocessing")
-        stage_placeholders["label"].markdown("✓ Attack Labeling")
-        stage_placeholders["features"].markdown("✓ Feature Engineering")
-        stage_placeholders["anomaly"].markdown("✓ Anomaly Analysis")
-        stage_placeholders["results"].markdown("✓ Results")
-
+    if res.get("status") == "SUCCESS" and res.get("total_records", 0) > 0:
         st.session_state.analysis_result = res
+        st.session_state.analyzed_filename = filename
         st.session_state.chat_history = []
         throughput = int(res.get("total_records", 0) / max(0.01, res.get("duration_sec", 1.0)))
-        st.success(f"Analysis completed in {res.get('duration_sec', 0.0)}s! ({throughput:,} records/sec)")
+        st.toast(f"Analysis completed: {res.get('total_records', 0):,} records processed in {res.get('duration_sec', 0.0)}s!", icon="✅")
         st.rerun()
     else:
-        st.error(f"Analysis halted: {res.get('error', 'Unknown parsing error')}")
+        err_msg = res.get("error", "No valid records could be parsed from this log.")
+        st.session_state.analyzed_filename = ""
+        st.error(f"Analysis halted: {err_msg}")

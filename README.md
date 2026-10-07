@@ -1,6 +1,6 @@
 # ROX — Log Intelligence Platform
 
-[![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://streamlit.io/cloud)
+[![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://roxanalyzer.streamlit.app/)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10%20%7C%203.11%20%7C%203.12-blue.svg)](https://www.python.org/)
 [![Pipeline Status](https://img.shields.io/badge/Pipeline-Ready-success.svg)]()
 
